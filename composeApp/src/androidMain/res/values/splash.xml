@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.App.Splash" parent="Theme.SplashScreen">
+        <!-- 背景色 -->
+        <item name="windowSplashScreenBackground">#202020</item>
+        <!-- 动画保持时长（ms）-->
+        <item name="windowSplashScreenAnimationDuration">300</item>
+        <!-- 居中图标 -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_squared</item>
+        <!-- 启动后要切换到的主题 -->
+        <item name="postSplashScreenTheme">@style/Theme.AppCompat.Light.NoActionBar</item>
+    </style>
+</resources>
