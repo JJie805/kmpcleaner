@@ -1,4 +1,4 @@
-rootProject.name = "kmpstarter"
+rootProject.name = "kmpcleaner"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {

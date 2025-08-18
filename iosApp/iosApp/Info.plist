@@ -4,5 +4,7 @@
     <dict>
         <key>CADisableMinimumFrameDurationOnPhone</key>
         <true/>
+        <key>NSPhotoLibraryUsageDescription</key>
+        <string>我们需要访问您的相册以便列出和显示您的照片</string>
     </dict>
 </plist>

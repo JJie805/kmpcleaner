@@ -1,7 +1,7 @@
-TEAM_ID=
+TEAM_ID=B4SHJDBQ2V
 
-PRODUCT_NAME=kmpstarter
-PRODUCT_BUNDLE_IDENTIFIER=com.hjcoding.kmpstarter.kmpstarter$(TEAM_ID)
+PRODUCT_NAME=kmpcleaner
+PRODUCT_BUNDLE_IDENTIFIER=com.hjcoding.kmpcleaner.kmpcleaner$(TEAM_ID)
 
 CURRENT_PROJECT_VERSION=1
 MARKETING_VERSION=1.0

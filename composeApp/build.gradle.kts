@@ -99,6 +99,10 @@ kotlin {
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.ui)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -115,11 +119,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.hjcoding.kmpstarter"
+    namespace = "com.hjcoding.kmpcleaner"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.hjcoding.kmpstarter"
+        applicationId = "com.hjcoding.kmpcleaner"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -147,11 +151,11 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "com.hjcoding.kmpstarter.MainKt"
+        mainClass = "com.hjcoding.kmpcleaner.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.hjcoding.kmpstarter"
+            packageName = "com.hjcoding.kmpcleaner"
             packageVersion = "1.0.0"
         }
     }

@@ -13,4 +13,12 @@ class SwiftLibDependencyFactoryImpl: SwiftLibDependencyFactory {
     func providePlatformImpl() -> any Platform {
         return IosPlatform()
     }
+
+    func provideMediaScannerImpl()-> any MediaScanner {
+        return MediaScannerImpl()
+    }
+    
+    func provideDeviceStorageSourceImpl() -> any DeviceStorageSource {
+        return DeviceStorageSourceImpl()
+    }
 }
