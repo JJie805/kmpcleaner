@@ -6,7 +6,6 @@ import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Video
 fun VideoEntity.toVideo() : Video {
     return Video(
         id = id,
-        thumbnail = thumbnail,
         creationDate = creationDate,
         duration = duration
     )

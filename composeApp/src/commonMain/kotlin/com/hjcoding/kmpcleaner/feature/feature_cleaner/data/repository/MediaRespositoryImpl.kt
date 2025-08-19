@@ -1,5 +1,6 @@
 package com.hjcoding.kmpcleaner.feature.feature_cleaner.data.repository
 
+import androidx.compose.ui.graphics.ImageBitmap
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.data.mappers.toPhoto
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.data.mappers.toStorageUsage
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.data.mappers.toVideo
@@ -60,6 +61,26 @@ class MediaRespositoryImpl(val mediaScanner : MediaScanner,
             suspendCancellableCoroutine {continuation ->
                 mediaScanner.getAllVideos{videoEntitys->
                     continuation.resume(videoEntitys.map { it.toVideo() }) { cause, _, _ ->  }
+                }
+            }
+        }
+    }
+
+    override suspend fun getThumbnailBitmap(id: String, isVideo: Boolean): ImageBitmap? {
+        return withContext(Dispatchers.IO) {
+            suspendCancellableCoroutine { continuation ->
+                mediaScanner.getThumbnailBitmap(forId = id, isVideo = isVideo) { bitmap ->
+                    continuation.resume(bitmap){cause, value, context -> }
+                }
+            }
+        }
+    }
+
+    override suspend fun getHashBitmap(id: String): ImageBitmap? {
+        return withContext(Dispatchers.IO) {
+            suspendCancellableCoroutine { continuation ->
+                mediaScanner.getHashBitmap(forId = id) { bitmap ->
+                    continuation.resume(bitmap){cause, value, context -> }
                 }
             }
         }

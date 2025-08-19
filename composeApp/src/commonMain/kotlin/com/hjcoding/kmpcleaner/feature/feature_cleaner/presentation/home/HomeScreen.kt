@@ -8,11 +8,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -23,6 +28,7 @@ import com.hjcoding.kmpcleaner.core.designsystem.components.BottomBar
 import com.hjcoding.kmpcleaner.core.designsystem.components.BottomNavItem
 import com.hjcoding.kmpcleaner.core.designsystem.icons.Home
 import com.hjcoding.kmpcleaner.core.designsystem.icons.Icons
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Photo
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.model.StorageInfo
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
@@ -226,18 +232,16 @@ fun CleanupItemCard(cleanupItem : CleanupItem){
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 // 无论 1 张还是 2 张，权重都固定为 1f
-                thumbnails.forEach { photo ->
-                    photo.thumbnail?.let {
-                        Image(
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(2.0f)
-                                .clip(RoundedCornerShape(10.dp)),
-                            bitmap = it,
-                            contentScale = ContentScale.Crop,
-                            contentDescription = null
-                        )
-                    }
+                thumbnails.forEach { thumbnail ->
+                    Image(
+                        modifier = Modifier
+                            .weight(1f)
+                            .aspectRatio(2.0f)
+                            .clip(RoundedCornerShape(10.dp)),
+                        bitmap = thumbnail,
+                        contentScale = ContentScale.Crop,
+                        contentDescription = null
+                    )
                 }
 
                 // 如果只有 1 张图片，补一个空的 Spacer 占位，使布局宽度一致
@@ -274,5 +278,24 @@ fun IconPreview(){
             contentDescription = null,
             tint = Color.Black
         )
+    }
+}
+
+@Composable
+fun AsyncPhotoView(photo: Photo, loadBitmap: suspend (Photo) -> ImageBitmap?) {
+    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+
+    // LaunchedEffect 会在 Composable 首次进入组合时执行
+    // 并且当 photo.id 变化时会重启
+    LaunchedEffect(photo.id) {
+        imageBitmap = loadBitmap(photo) // 触发按需加载
+    }
+
+    if (imageBitmap != null) {
+        Image(bitmap = imageBitmap!!, contentDescription = null)
+    } else {
+        Box(modifier = Modifier.size(100.dp).background(Color.Gray)) { // 显示占位符
+            CircularProgressIndicator()
+        }
     }
 }

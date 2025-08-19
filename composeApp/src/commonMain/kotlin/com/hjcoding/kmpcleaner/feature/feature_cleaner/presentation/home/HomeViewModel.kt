@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 
-
 class HomeViewModel(
     private val getHomePageDataUseCase: GetHomePageDataUseCase) : ViewModel(), KoinComponent {
 

@@ -1,8 +1,8 @@
 package com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.model.PhotoUi
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.model.StorageInfo
 
 enum class CleanupType {
@@ -21,7 +21,7 @@ data class CleanupItem(
     val describe: String,
     val icon: ImageVector,
     val iconColor: Color,
-    val thumbnails: List<PhotoUi>,
+    val thumbnails: List<ImageBitmap>,
     val itemCount: Int = 0, // 新增：项目数量
     val sizeInBytes: Long = 0L // 新增：占用空间
 )

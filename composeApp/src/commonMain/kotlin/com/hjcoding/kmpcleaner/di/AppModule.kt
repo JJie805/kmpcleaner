@@ -30,7 +30,7 @@ val appModule = module {
 
     single { MediaRespositoryImpl(mediaScanner = get(), deviceStorageSource = get()) } bind MediaRespository::class
     single { GetHomePageDataUseCase(mediaRepository = get(), getSimilarPhotoGroupsUseCase = get()) } bind GetHomePageDataUseCase::class
-    single { GetSimilarPhotoGroupsUseCase()} bind GetSimilarPhotoGroupsUseCase::class
+    single { GetSimilarPhotoGroupsUseCase(mediaRepository = get())} bind GetSimilarPhotoGroupsUseCase::class
     single { GuestLoginUseCase(authRespository = get(), tokenManager = get()) }
 
     viewModelOf(::SplashViewModel)
