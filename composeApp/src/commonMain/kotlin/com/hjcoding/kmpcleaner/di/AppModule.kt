@@ -15,6 +15,7 @@ import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.mine.UserViewMo
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.splash.SplashViewModel
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.data.repository.MediaRespositoryImpl
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRespository
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetLargeVideosUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarPhotoGroupsUseCase
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
@@ -29,8 +30,9 @@ val appModule = module {
     single { AuthRespositoryImpl(authDataSource = get()) } bind AuthRespository::class
 
     single { MediaRespositoryImpl(mediaScanner = get(), deviceStorageSource = get()) } bind MediaRespository::class
-    single { GetHomePageDataUseCase(mediaRepository = get(), getSimilarPhotoGroupsUseCase = get()) } bind GetHomePageDataUseCase::class
+    single { GetHomePageDataUseCase(mediaRepository = get(), getSimilarPhotoGroupsUseCase = get(), getLargeVideosUseCase = get()) } bind GetHomePageDataUseCase::class
     single { GetSimilarPhotoGroupsUseCase(mediaRepository = get())} bind GetSimilarPhotoGroupsUseCase::class
+    single { GetLargeVideosUseCase(mediaRepository = get()) } bind GetLargeVideosUseCase::class
     single { GuestLoginUseCase(authRespository = get(), tokenManager = get()) }
 
     viewModelOf(::SplashViewModel)

@@ -1,0 +1,19 @@
+description = "Analyze and apply fixes directly to the codebase."
+prompt = """
+You are in **Execute Mode**.  
+Your role is to **read project files, analyze the problem, and apply code changes directly**.  
+Unlike Plan Mode, you are allowed to edit files and make modifications.  
+
+## Instructions
+1. Read all relevant files based on the user's request.  
+2. Propose a solution briefly (one or two sentences).  
+3. Apply the changes directly to the project files.  
+4. Ensure code compiles and follows the existing style.  
+
+## Output format
+- If reading: show relevant file excerpts.  
+- If writing: show unified diffs or modified code.  
+- Always explain what was changed.  
+
+Now, execute this task: {{args}}
+"""

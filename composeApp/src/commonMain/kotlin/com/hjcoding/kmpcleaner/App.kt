@@ -18,6 +18,7 @@ import com.hjcoding.kmpcleaner.core.designsystem.theme.AppTheme
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.HomeScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.mine.UserScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.splash.LicenseAgreementDialog
+import com.hjcoding.kmpcleaner.feature.feature_tool.presentation.toolbox.ToolboxScreenRoot
 import com.hjcoding.kmpcleaner.platform.exitApp
 import kotlinx.coroutines.launch
 import org.koin.compose.getKoin
@@ -90,7 +91,7 @@ fun App(
         }
 
         composable<Route.ToolBox> {
-            UserScreenRoot(
+            ToolboxScreenRoot(
                 currentDestination = navController.currentDestination,
                 onClickBottomItem = {item->
                     navController.navigate(item.route) {

@@ -5,6 +5,13 @@ import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarScreenshot
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.StorageUsage
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRespository
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarPhotoGroupsUseCase
+import androidx.compose.ui.graphics.Color
+import com.hjcoding.kmpcleaner.core.designsystem.icons.Icons
+import com.hjcoding.kmpcleaner.core.designsystem.icons.LargeVideo
+import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarImage
+import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarScreenshot
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.StorageUsage
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRespository
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupItem
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupType
 import kotlinx.coroutines.async
@@ -17,7 +24,8 @@ data class HomePageData(
 
 class GetHomePageDataUseCase(
     private val mediaRepository: MediaRespository,
-    private val getSimilarPhotoGroupsUseCase: GetSimilarPhotoGroupsUseCase
+    private val getSimilarPhotoGroupsUseCase: GetSimilarPhotoGroupsUseCase,
+    private val getLargeVideosUseCase: GetLargeVideosUseCase
 ) {
 
     suspend operator fun invoke(): Result<HomePageData> {
@@ -25,15 +33,9 @@ class GetHomePageDataUseCase(
             coroutineScope {
                 // --- SIMILAR PHOTOS LOGIC ---
                 val similarPhotosJob = async {
-                    // 1. 快速获取元数据
                     val allPhotos = mediaRepository.getNonScreenshotPhotos()
-
-                    // 2. 在后台进行哈希计算
                     val similarGroups = getSimilarPhotoGroupsUseCase(allPhotos)
-
                     val firstGroupPhotos = similarGroups.firstOrNull()?.photos ?: emptyList()
-
-                    // 3. 【新增】为首页展示，只加载前两张的缩略图
                     val thumbnails = firstGroupPhotos.take(2).map { photo ->
                         async { mediaRepository.getThumbnailBitmap(photo.id, isVideo = false) }
                     }.mapNotNull { it.await() }
@@ -50,18 +52,11 @@ class GetHomePageDataUseCase(
                     )
                 }
 
-                // --- SIMILAR SCREENSHOTS LOGIC (REUSE THE USECASE!) ---
+                // --- SIMILAR SCREENSHOTS LOGIC ---
                 val screenshotsJob = async {
-                    // 1. 获取所有截图
                     val allScreenshots = mediaRepository.getScreenshotPhotos()
-
-                    // 2. 【核心】复用同一个 worker UseCase 来查找相似截图
                     val similarScreenshotGroups = getSimilarPhotoGroupsUseCase(allScreenshots)
-
-                    // 3. 从分组中提取数据
                     val firstScreenshotGroup = similarScreenshotGroups.firstOrNull()?.photos ?: emptyList()
-
-                    // 3. 【新增】为首页展示，只加载前两张的缩略图
                     val thumbnails = firstScreenshotGroup.take(2).map { photo ->
                         async { mediaRepository.getThumbnailBitmap(photo.id, isVideo = false) }
                     }.mapNotNull { it.await() }
@@ -72,19 +67,39 @@ class GetHomePageDataUseCase(
                         describe = "查找并清理相似的屏幕截图",
                         icon = Icons.SimilarScreenshot,
                         iconColor = Color.White,
-                        // 4. 【已修复】获取真实的相似截图缩略图
                         thumbnails = thumbnails,
-                        // 5. 【已修复】计算相似截图总数
                         itemCount = similarScreenshotGroups.sumOf { it.photos.size },
-                        // 6. 【已修复】计算相似截图总大小
                         sizeInBytes = similarScreenshotGroups.sumOf { group -> group.photos.sumOf { it.sizeInBytes } }
+                    )
+                }
+
+                // --- LARGE VIDEOS LOGIC ---
+                val largeVideosJob = async {
+                    val largeVideos = getLargeVideosUseCase()
+                    val thumbnails = largeVideos.take(2).map { video ->
+                        async { mediaRepository.getThumbnailBitmap(video.id, isVideo = true) }
+                    }.mapNotNull { it.await() }
+
+                    CleanupItem(
+                        type = CleanupType.LARGE_VIDEOS,
+                        title = "大视频",
+                        describe = "建议清理占用空间大的视频",
+                        icon = Icons.LargeVideo,
+                        iconColor = Color.White,
+                        thumbnails = thumbnails,
+                        itemCount = largeVideos.size,
+                        sizeInBytes = largeVideos.sumOf { it.sizeInBytes }
                     )
                 }
 
                 val storageJob = async { mediaRepository.getStorageUsage() }
 
                 val storageUsage = storageJob.await()
-                val cleanupItems = listOf(similarPhotosJob.await(), screenshotsJob.await())
+                val cleanupItems = listOf(
+                    similarPhotosJob.await(),
+                    screenshotsJob.await(),
+                    largeVideosJob.await()
+                )
 
                 Result.success(HomePageData(storageUsage, cleanupItems))
             }

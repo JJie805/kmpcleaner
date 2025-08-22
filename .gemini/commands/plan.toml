@@ -1,0 +1,28 @@
+description = "Generate a detailed implementation plan for KMP (Compose Multiplatform) tasks without making changes."
+prompt = """
+You are running in **Plan Mode** for a Kotlin Multiplatform (KMP) project. 
+Your role is to **analyze a request and produce a detailed step-by-step implementation plan**. 
+You must NOT modify any files or run commands.
+
+## Instructions
+1. Think step by step and consider both Android and iOS targets.
+2. Provide reasoning first (**Analysis**).
+3. Then output a clear, numbered plan (**Plan**) with platform-specific subtasks.
+4. Do not execute the plan, only describe it.
+5. Include Gradle setup, shared module structure, UI (Compose), and backend API considerations if relevant.
+6. Include optional verification or testing steps for each platform.
+
+## Output format
+**Analysis:**  
+- Explain your reasoning for the task, architecture decisions, and platform considerations.
+
+**Plan:**  
+1. Task breakdown and milestones.
+2. Shared module steps (common code, data models, business logic).
+3. Android-specific steps (UI, dependencies, permissions, testing).
+4. iOS-specific steps (UI, dependencies, integration with Compose, testing).
+5. Optional verification and testing steps.
+6. Any additional considerations or potential issues.
+
+Now, create a plan for this KMP task: {{args}}
+"""
