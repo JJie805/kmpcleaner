@@ -44,15 +44,15 @@ class GetSimilarPhotoGroupsUseCase(
                 // getOrPut: 如果缓存中已有，则直接返回；否则，执行 lambda 来计算并存入缓存。
                 // 尝试从缓存获取或计算 hash1
                 val hash1 = photoHashes[photo.id] ?: run {
-                    val hashBitmap = mediaRepository.getHashBitmap(photo.id)
-                    val computedHash = hashBitmap?.averageHash()
+                    val hashBitmap = mediaRepository.getDhashBitmap(photo.id)
+                    val computedHash = hashBitmap?.differenceHash()
                     // 如果计算成功，就存入缓存
                     if (computedHash != null) {
                         photoHashes[photo.id] = computedHash
                     }
                     computedHash
                 }
-                println("hash1 $hash1")
+                println("photo.id ${photo.id } hash1 $hash1")
                 // 如果 hash1 最终为 null (计算失败且缓存中没有)，则跳过
                 if (hash1 == null) continue
 
@@ -66,12 +66,17 @@ class GetSimilarPhotoGroupsUseCase(
                     if (isUnlikelyToBeSimilar(photo, otherPhoto)) continue
 
                     // 关键步骤4：为待比较的照片按需获取哈希值
-                    val hash2 = photoHashes.getOrPut(otherPhoto.id) {
-                        val hashBitmap = mediaRepository.getHashBitmap(otherPhoto.id)
-                        hashBitmap?.averageHash() ?: -1L
+                    val hash2 = photoHashes[otherPhoto.id] ?: run {
+                        val hashBitmap = mediaRepository.getDhashBitmap(otherPhoto.id)
+                        val computedHash = hashBitmap?.differenceHash()
+                        // 如果计算成功，就存入缓存
+                        if (computedHash != null) {
+                            photoHashes[otherPhoto.id] = computedHash
+                        }
+                        computedHash
                     }
-                    if (hash2 == -1L) continue
-
+                    if (hash2 == null) continue
+                    println("otherPhoto.id ${otherPhoto.id } hash2 $hash2")
                     // 关键步骤5：进行汉明距离比较
                     if (hammingDistance(hash1, hash2) <= HAMMING_DISTANCE_THRESHOLD) {
                         currentGroup.add(otherPhoto)
@@ -147,7 +152,53 @@ private fun ImageBitmap.averageHash(): Long {
 }
 
 /**
- * 计算两个哈希值之间的汉明距离（即有多少个 bit 位不同）。
+ * 计算 ImageBitmap 的差异哈希（dHash）。
+ * 它通过比较水平相邻像素的亮度来工作，比 aHash更能抵抗整体亮度和对比度的变化。
+ *
+ * 重要：要生成一个完整的 64 位哈希，输入的 ImageBitmap 尺寸应为 9x8。
+ */
+private fun ImageBitmap.differenceHash(): Long {
+    // 1. 将图片缩放到 9x8 尺寸。这一步应该在调用此函数之前，
+    //    由 MediaRepository 在请求平台层提供缩略图时完成。
+    //    我们在这里假设输入的 'this' 已经是 9x8 的 ImageBitmap。
+    val pixelMap = this.toPixelMap()
+
+    // 明确我们期望的尺寸，便于理解代码
+    val width = 9
+    val height = 8
+
+    // 健壮性检查：如果传入的图片尺寸不对，返回一个错误值或抛出异常
+    if (pixelMap.width != width || pixelMap.height != height) {
+        // 在实际项目中，您可以在这里打日志或返回一个固定的错误哈希
+        println("Warning: Input bitmap for dHash is not 9x8, results may be inaccurate. width ${pixelMap.width} height ${pixelMap.height}")
+        return 0L // 或者其他您定义的错误码
+    }
+
+    var hash = 0L
+    var bitIndex = 0
+    for (y in 0 until height) { // 遍历 8 行
+        // 关键点：宽度只遍历到倒数第二个像素 (0 到 7)，因为我们要比较 x 和 x+1
+        for (x in 0 until width - 1) { // 遍历 8 次比较 (需要 9 个像素)
+
+            // 2. 获取左右相邻两个像素的亮度
+            val leftPixelLuminance = pixelMap[x, y].luminance()
+            val rightPixelLuminance = pixelMap[x + 1, y].luminance()
+
+            // 3. 进行比较：如果左边比右边亮，则该 bit 位为 1，否则为 0
+            if (leftPixelLuminance > rightPixelLuminance) {
+                // 使用位运算，将 hash 的第 bitIndex 位置为 1
+                hash = hash or (1L shl bitIndex)
+            }
+
+            // 移动到下一个 bit 位
+            bitIndex++
+        }
+    }
+    return hash
+}
+
+/**
+ * 计算两个哈希值之间的汉明距离（既有多少个 bit 位不同）。
  */
 private fun hammingDistance(h1: Long, h2: Long): Int {
     // a xor b 会得到一个二进制数，其中为1的位就代表原始两个数在该位上不同

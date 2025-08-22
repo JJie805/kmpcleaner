@@ -20,5 +20,7 @@ interface MediaRespository {
 
 
     suspend fun getThumbnailBitmap(id: String, isVideo: Boolean): ImageBitmap?
-    suspend fun getHashBitmap(id: String): ImageBitmap?
+    suspend fun getAhashBitmap(id: String): ImageBitmap?
+
+    suspend fun getDhashBitmap(id: String): ImageBitmap?
 }

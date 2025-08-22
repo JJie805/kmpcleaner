@@ -5,6 +5,7 @@ import UIKit
 
 
 class MediaScannerImpl: ComposeApp.MediaScanner {
+ 
     func getAllPhotos(completion: @escaping ([ComposeApp.PhotoEntity]) -> Void) {
         runWithAuthorization {
             let fetchOptions = PHFetchOptions()
@@ -57,35 +58,59 @@ class MediaScannerImpl: ComposeApp.MediaScanner {
     func getThumbnailBitmap(forId id: String, isVideo: Bool, completion: @escaping (Ui_graphicsImageBitmap?) -> Void) {
         fetchBitmap(forId: id, targetSize: CGSize(width: 400, height: 400), completion: completion)
     }
-
-    func getHashBitmap(forId id: String, completion: @escaping (Ui_graphicsImageBitmap?) -> Void) {
+    
+    func getAhashBitmap(forId id: String, completion: @escaping (Ui_graphicsImageBitmap?) -> Void) {
         fetchBitmap(forId: id, targetSize: CGSize(width: 8, height: 8), completion: completion)
+    }
+    
+    func getDhashBitmap(forId id: String, completion: @escaping (Ui_graphicsImageBitmap?) -> Void) {
+        fetchBitmap(forId: id, targetSize: CGSize(width: 9, height: 8), completion: completion)
     }
 
     // MARK: - Private Helpers
     
     /// 核心的、按需获取单个位图的函数
     private func fetchBitmap(forId id: String, targetSize: CGSize, completion: @escaping (Ui_graphicsImageBitmap?) -> Void) {
-        // 将任务派发到后台队列，避免阻塞调用者
+        // 1. 切换到后台线程，这部分逻辑保持不变，非常正确。
         DispatchQueue.global(qos: .userInitiated).async {
             let assets = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
             guard let asset = assets.firstObject else {
-                // 即使找不到也要在主线程回调，确保线程安全
                 DispatchQueue.main.async { completion(nil) }
                 return
             }
             
             let imageManager = PHImageManager.default()
             let options = PHImageRequestOptions()
+            // 这些选项依然是最佳实践，我们告诉系统需要一个高质量的小图
             options.deliveryMode = .highQualityFormat
-            options.resizeMode = .exact // 精确缩放以获得正确的哈希值
+            options.resizeMode = .exact
             options.isNetworkAccessAllowed = true
-            // 在我们自己的后台队列中使用同步是安全的，可以简化逻辑
             options.isSynchronous = true
 
+            // 2. 调用 requestImage，但我们只把它当作获取“原材料”的步骤
             imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: options) { image, _ in
-                let bitmap = image != nil ? self.uiImageToImageBitmap(image!) : nil
-                // 将结果切回主线程进行回调，这是 Swift 与 UIKit/Photos 交互的安全做法
+                
+                // 3. 安全地解包从系统获取的图片
+                guard let fetchedImage = image else {
+                    // 如果系统因为任何原因（如iCloud下载失败）未能返回图片，则安全退出
+                    DispatchQueue.main.async { completion(nil) }
+                    return
+                }
+                
+                // ==================== 核心修改：强制尺寸校正 ====================
+                //
+                // 无论 `fetchedImage` 的实际尺寸是多少 (90x120, 56x120, etc.),
+                // `correctlySizedImage` 的尺寸将永远是我们传入的 `targetSize` (例如 9x8)。
+                // 这是解决问题的关键一步。
+                //
+                let correctlySizedImage = self.resizeUIImage(fetchedImage, targetSize: targetSize)
+                //
+                // ==========================================================
+                
+                // 4. 使用我们刚刚校正过尺寸的图片，进行后续的转换操作
+                let bitmap = self.uiImageToImageBitmap(correctlySizedImage)
+                
+                // 5. 将最终结果安全地返回到主线程，供 Kotlin 使用
                 DispatchQueue.main.async { completion(bitmap) }
             }
         }

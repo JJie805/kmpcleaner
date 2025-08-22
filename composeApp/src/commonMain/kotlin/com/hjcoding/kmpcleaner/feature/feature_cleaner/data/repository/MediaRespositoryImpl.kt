@@ -76,10 +76,20 @@ class MediaRespositoryImpl(val mediaScanner : MediaScanner,
         }
     }
 
-    override suspend fun getHashBitmap(id: String): ImageBitmap? {
+    override suspend fun getAhashBitmap(id: String): ImageBitmap? {
         return withContext(Dispatchers.IO) {
             suspendCancellableCoroutine { continuation ->
-                mediaScanner.getHashBitmap(forId = id) { bitmap ->
+                mediaScanner.getAhashBitmap(forId = id) { bitmap ->
+                    continuation.resume(bitmap){cause, value, context -> }
+                }
+            }
+        }
+    }
+
+    override suspend fun getDhashBitmap(id: String): ImageBitmap? {
+        return withContext(Dispatchers.IO) {
+            suspendCancellableCoroutine { continuation ->
+                mediaScanner.getDhashBitmap(forId = id) { bitmap ->
                     continuation.resume(bitmap){cause, value, context -> }
                 }
             }
