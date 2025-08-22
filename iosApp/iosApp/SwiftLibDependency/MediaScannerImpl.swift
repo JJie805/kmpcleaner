@@ -127,8 +127,6 @@ class MediaScannerImpl: ComposeApp.MediaScanner {
                 id: asset.localIdentifier,
                 creationDate: Int64(asset.creationDate?.timeIntervalSince1970 ?? 0),
                 sizeInBytes: self.getFileSizeForAsset(asset: asset),
-                width: Int32(asset.pixelWidth),
-                height: Int32(asset.pixelHeight),
                 duration: Int64(asset.duration)
             )
         }

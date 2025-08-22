@@ -2,16 +2,11 @@ import androidx.compose.ui.graphics.Color
 import com.hjcoding.kmpcleaner.core.designsystem.icons.Icons
 import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarImage
 import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarScreenshot
+import com.hjcoding.kmpcleaner.core.designsystem.icons.Video
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.StorageUsage
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRespository
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetLargeVideosUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarPhotoGroupsUseCase
-import androidx.compose.ui.graphics.Color
-import com.hjcoding.kmpcleaner.core.designsystem.icons.Icons
-import com.hjcoding.kmpcleaner.core.designsystem.icons.LargeVideo
-import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarImage
-import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarScreenshot
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.StorageUsage
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRespository
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupItem
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupType
 import kotlinx.coroutines.async
@@ -84,7 +79,7 @@ class GetHomePageDataUseCase(
                         type = CleanupType.LARGE_VIDEOS,
                         title = "大视频",
                         describe = "建议清理占用空间大的视频",
-                        icon = Icons.LargeVideo,
+                        icon = Icons.Video,
                         iconColor = Color.White,
                         thumbnails = thumbnails,
                         itemCount = largeVideos.size,

@@ -20,6 +20,6 @@ class GetLargeVideosUseCase(private val mediaRepository: MediaRespository) {
 
     companion object {
         // Default threshold: 100 MB
-        private const val DEFAULT_THRESHOLD_BYTES = 100 * 1024 * 1024L
+        private const val DEFAULT_THRESHOLD_BYTES = 1 * 1024 * 1024L
     }
 }

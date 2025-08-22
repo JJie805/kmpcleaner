@@ -7,6 +7,7 @@ fun VideoEntity.toVideo() : Video {
     return Video(
         id = id,
         creationDate = creationDate,
-        duration = duration
+        duration = duration,
+        sizeInBytes = sizeInBytes,
     )
 }
