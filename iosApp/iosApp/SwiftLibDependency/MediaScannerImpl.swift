@@ -69,8 +69,7 @@ class MediaScannerImpl: ComposeApp.MediaScanner {
 
             let imageManager = PHImageManager.default()
             let options = PHImageRequestOptions()
-            options.deliveryMode = .highQualityFormat
-            options.resizeMode = .exact
+            options.deliveryMode = .fastFormat
             options.isNetworkAccessAllowed = true
             // REMOVED: options.isSynchronous = true - This is critical for performance
 

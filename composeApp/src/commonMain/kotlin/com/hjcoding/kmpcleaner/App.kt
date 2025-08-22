@@ -2,6 +2,7 @@ package com.hjcoding.kmpcleaner
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -15,9 +16,11 @@ import com.hjcoding.kmpcleaner.core.data.local.preferences.UserPreferences
 import com.hjcoding.kmpcleaner.core.designsystem.components.Background
 import com.hjcoding.kmpcleaner.core.designsystem.components.BottomNavItem
 import com.hjcoding.kmpcleaner.core.designsystem.theme.AppTheme
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.HomeScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.mine.UserScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.splash.LicenseAgreementDialog
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupType
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.HomeScreenRoot
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.screenshots.ScreenshotsScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_tool.presentation.toolbox.ToolboxScreenRoot
 import com.hjcoding.kmpcleaner.platform.exitApp
 import kotlinx.coroutines.launch
@@ -78,13 +81,24 @@ fun App(
         composable<Route.Home> {
             HomeScreenRoot(
                 currentDestination = navController.currentDestination,
-                onClickBottomItem = {item->
+                onClickBottomItem = { item ->
                     navController.navigate(item.route) {
                         popUpTo(BottomNavItem.Home.route) {
                             saveState = true // 用于页面状态的恢复
                         }
                         launchSingleTop = true
                         restoreState = true
+                    }
+                },
+                onClickCleanupItem = { cleanupType ->
+                    when (cleanupType) {
+                        CleanupType.SIMILAR_PHOTOS -> navController.navigate(Route.SimilarPhotosCleanup)
+                        CleanupType.LARGE_VIDEOS -> navController.navigate(Route.LargeVideosCleanup)
+                        CleanupType.SIMILAR_SCREENSHOTS -> navController.navigate(Route.SimilarScreenshotsCleanup)
+                        CleanupType.ALL_SCREENSHOTS -> navController.navigate(Route.ScreenshotsCleanup)
+                        else -> {
+                            // Handle other cases if necessary
+                        }
                     }
                 }
             )
@@ -93,7 +107,7 @@ fun App(
         composable<Route.ToolBox> {
             ToolboxScreenRoot(
                 currentDestination = navController.currentDestination,
-                onClickBottomItem = {item->
+                onClickBottomItem = { item ->
                     navController.navigate(item.route) {
                         popUpTo(BottomNavItem.Toolbox.route) {
                             saveState = true // 用于页面状态的恢复
@@ -108,7 +122,7 @@ fun App(
         composable<Route.User> {
             UserScreenRoot(
                 currentDestination = navController.currentDestination,
-                onClickBottomItem = {item->
+                onClickBottomItem = { item ->
                     navController.navigate(item.route) {
                         popUpTo(BottomNavItem.Home.route) {
                             saveState = true // 用于页面状态的恢复
@@ -119,6 +133,11 @@ fun App(
                 }
             )
         }
+
+        composable<Route.SimilarPhotosCleanup> { Text("Similar Photos Cleanup Page") }
+        composable<Route.SimilarScreenshotsCleanup> { Text("Similar Screenshots Cleanup Page") }
+        composable<Route.ScreenshotsCleanup> { ScreenshotsScreenRoot() }
+        composable<Route.LargeVideosCleanup> { Text("Large Videos Cleanup Page") }
     }
 }
 

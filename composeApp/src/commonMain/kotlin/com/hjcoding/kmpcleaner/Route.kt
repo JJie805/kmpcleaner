@@ -16,4 +16,16 @@ sealed interface Route {
     data object ToolBox
     @Serializable
     data object User
+
+    @Serializable
+    data object SimilarPhotosCleanup
+
+    @Serializable
+    data object SimilarScreenshotsCleanup
+
+    @Serializable
+    data object ScreenshotsCleanup
+
+    @Serializable
+    data object LargeVideosCleanup
 }

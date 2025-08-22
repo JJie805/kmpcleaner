@@ -2,6 +2,7 @@ package com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -36,9 +37,11 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeScreenRoot(
-    currentDestination : NavDestination? = null,
-    onClickBottomItem : ((BottomNavItem)->Unit)? = null,
-    viewModel: HomeViewModel = koinViewModel()) {
+    currentDestination: NavDestination? = null,
+    onClickBottomItem: ((BottomNavItem) -> Unit)? = null,
+    onClickCleanupItem: (CleanupType) -> Unit,
+    viewModel: HomeViewModel = koinViewModel()
+) {
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -46,23 +49,27 @@ fun HomeScreenRoot(
         state = state,
         onAction = viewModel::onAction,
         currentDestination = currentDestination,
-        onClickBottomItem = onClickBottomItem
+        onClickBottomItem = onClickBottomItem,
+        onClickCleanupItem = onClickCleanupItem
     )
 }
 
 @Composable
 fun HomeScreen(
-    currentDestination : NavDestination? = null,
-    onClickBottomItem : ((BottomNavItem)->Unit)? = null,
+    currentDestination: NavDestination? = null,
+    onClickBottomItem: ((BottomNavItem) -> Unit)? = null,
     state: HomeState,
     onAction: (HomeAction) -> Unit,
+    onClickCleanupItem: (CleanupType) -> Unit,
 ) {
     Scaffold(modifier = Modifier
         .fillMaxSize(),
         containerColor = Color.White,
         bottomBar = {
-            BottomBar(currentDestination = currentDestination,
-                onClickBottomItem = onClickBottomItem)
+            BottomBar(
+                currentDestination = currentDestination,
+                onClickBottomItem = onClickBottomItem
+            )
         }
     ) { paddingValues ->
 
@@ -91,7 +98,7 @@ fun HomeScreen(
                 // 列表项：清理卡片
                 items(state.cleanupItems.size) { index ->
                     val item = state.cleanupItems[index]
-                    CleanupItemCard(cleanupItem = item,)
+                    CleanupItemCard(cleanupItem = item, onClick = { onClickCleanupItem(item.type) })
                 }
             }
 
@@ -117,36 +124,52 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeHeader(){
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 15.dp),
+fun HomeHeader() {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 15.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(text = "存储空间清理",
-            fontSize = 16.sp)
-        Text(text = "释放您的设备空间",
-            fontSize = 12.sp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(
+            text = "存储空间清理",
+            fontSize = 16.sp
+        )
+        Text(
+            text = "释放您的设备空间",
+            fontSize = 12.sp
+        )
     }
 }
 
 @Composable
-fun StorageOverview(storageInfo: StorageInfo){
-    Card(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 10.dp),
+fun StorageOverview(storageInfo: StorageInfo) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp),
         colors = CardDefaults.outlinedCardColors(containerColor = Color.White),
         elevation = CardDefaults.outlinedCardElevation(defaultElevation = 2.dp),
-        border = CardDefaults.outlinedCardBorder()) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 15.dp),
+        border = CardDefaults.outlinedCardBorder()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 15.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(text = "存储空间",
-                fontSize = 16.sp)
-            Text(text = "95G",
-                fontSize = 12.sp)
-            Text(text = "已使用128G中的95G",
-                fontSize = 12.sp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = "存储空间",
+                fontSize = 16.sp
+            )
+            Text(
+                text = "95G",
+                fontSize = 12.sp
+            )
+            Text(
+                text = "已使用128G中的95G",
+                fontSize = 12.sp
+            )
             Spacer(Modifier.height(15.dp))
             LinearProgressIndicator(
                 modifier = Modifier
@@ -165,10 +188,11 @@ fun RingIcon(
     modifier: Modifier = Modifier
         .size(64.dp) // 外圈总大
         .clip(CircleShape)
-        .background(Color.Blue,CircleShape)
+        .background(Color.Blue, CircleShape)
         .padding(12.dp),
     imageVector: ImageVector,
-    tint : Color){
+    tint: Color
+) {
     Box(
         modifier = modifier, // 留出内圈空间
         contentAlignment = Alignment.Center
@@ -182,17 +206,21 @@ fun RingIcon(
 }
 
 @Composable
-fun CleanupItemCard(cleanupItem : CleanupItem){
+fun CleanupItemCard(cleanupItem: CleanupItem, onClick: () -> Unit) {
     Card(modifier = Modifier
         .fillMaxWidth()
-        .padding(horizontal = 10.dp),
+        .padding(horizontal = 10.dp)
+        .clickable { onClick() },
         colors = CardDefaults.outlinedCardColors(containerColor = Color.White),
         elevation = CardDefaults.outlinedCardElevation(defaultElevation = 2.dp),
-        border = CardDefaults.outlinedCardBorder()) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp, vertical = 5.dp),
-            verticalAlignment = Alignment.CenterVertically){
+        border = CardDefaults.outlinedCardBorder()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp, vertical = 5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
             RingIcon(
                 imageVector = cleanupItem.icon,
@@ -206,11 +234,13 @@ fun CleanupItemCard(cleanupItem : CleanupItem){
 
             Spacer(Modifier.weight(1f))
 
-            if (cleanupItem.thumbnails.isNotEmpty()){
-                Row(modifier = Modifier
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(Color.Red)
-                    .padding(horizontal = 5.dp, vertical = 2.dp)) {
+            if (cleanupItem.thumbnails.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(Color.Red)
+                        .padding(horizontal = 5.dp, vertical = 2.dp)
+                ) {
                     Column {
                         Text(text = "9张张片")
                         Text(text = "13.15M")
@@ -258,18 +288,19 @@ fun CleanupItemCard(cleanupItem : CleanupItem){
 fun HomeScreenPreview() {
     HomeScreen(
         state = HomeState(),
-        onAction = {}
+        onAction = {},
+        onClickCleanupItem = {}
     )
 }
 
 @Preview
 @Composable
-fun IconPreview(){
+fun IconPreview() {
     Box(
         modifier = Modifier
             .size(50.dp) // 外圈总大
             .clip(CircleShape)
-            .background(Color.Blue,CircleShape)
+            .background(Color.Blue, CircleShape)
             .padding(12.dp), // 留出内圈空间
         contentAlignment = Alignment.Center
     ) {
