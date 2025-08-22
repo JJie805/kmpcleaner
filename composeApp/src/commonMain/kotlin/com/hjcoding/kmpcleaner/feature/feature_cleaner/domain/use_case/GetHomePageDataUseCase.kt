@@ -6,6 +6,7 @@ import com.hjcoding.kmpcleaner.core.designsystem.icons.Video
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.StorageUsage
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRespository
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetLargeVideosUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetScreenshotsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarPhotoGroupsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupItem
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupType
@@ -20,7 +21,8 @@ data class HomePageData(
 class GetHomePageDataUseCase(
     private val mediaRepository: MediaRespository,
     private val getSimilarPhotoGroupsUseCase: GetSimilarPhotoGroupsUseCase,
-    private val getLargeVideosUseCase: GetLargeVideosUseCase
+    private val getLargeVideosUseCase: GetLargeVideosUseCase,
+    private val getScreenshotsUseCase: GetScreenshotsUseCase
 ) {
 
     suspend operator fun invoke(): Result<HomePageData> {
@@ -87,13 +89,33 @@ class GetHomePageDataUseCase(
                     )
                 }
 
+                // --- ALL SCREENSHOTS LOGIC ---
+                val allScreenshotsJob = async {
+                    val allScreenshots = getScreenshotsUseCase()
+                    val thumbnails = allScreenshots.take(2).map { photo ->
+                        async { mediaRepository.getThumbnailBitmap(photo.id, isVideo = false) }
+                    }.mapNotNull { it.await() }
+
+                    CleanupItem(
+                        type = CleanupType.ALL_SCREENSHOTS,
+                        title = "所有截图",
+                        describe = "清理所有屏幕截图",
+                        icon = Icons.SimilarScreenshot, // Reusing icon for now
+                        iconColor = Color.White,
+                        thumbnails = thumbnails,
+                        itemCount = allScreenshots.size,
+                        sizeInBytes = allScreenshots.sumOf { it.sizeInBytes }
+                    )
+                }
+
                 val storageJob = async { mediaRepository.getStorageUsage() }
 
                 val storageUsage = storageJob.await()
                 val cleanupItems = listOf(
                     similarPhotosJob.await(),
                     screenshotsJob.await(),
-                    largeVideosJob.await()
+                    largeVideosJob.await(),
+                    allScreenshotsJob.await()
                 )
 
                 Result.success(HomePageData(storageUsage, cleanupItems))

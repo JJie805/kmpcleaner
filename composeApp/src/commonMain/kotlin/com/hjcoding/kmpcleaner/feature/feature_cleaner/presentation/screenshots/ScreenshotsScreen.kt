@@ -40,6 +40,7 @@ fun ScreenshotsScreen(
     loadBitmap: suspend (Photo) -> ImageBitmap?
 ) {
     Scaffold(
+        modifier = Modifier.fillMaxSize().background(Color.Red),
         bottomBar = {
             if (uiState.selectedScreenshots.isNotEmpty()) {
                 Button(
@@ -52,7 +53,7 @@ fun ScreenshotsScreen(
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            modifier = Modifier.fillMaxSize().padding(paddingValues).background(Color.Blue),
             contentAlignment = Alignment.Center
         ) {
             if (uiState.isLoading) {

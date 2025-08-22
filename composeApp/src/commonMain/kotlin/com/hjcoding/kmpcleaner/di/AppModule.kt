@@ -32,7 +32,7 @@ val appModule = module {
     single { AuthRespositoryImpl(authDataSource = get()) } bind AuthRespository::class
 
     single { MediaRespositoryImpl(mediaScanner = get(), deviceStorageSource = get()) } bind MediaRespository::class
-    single { GetHomePageDataUseCase(mediaRepository = get(), getSimilarPhotoGroupsUseCase = get(), getLargeVideosUseCase = get()) } bind GetHomePageDataUseCase::class
+    single { GetHomePageDataUseCase(mediaRepository = get(), getSimilarPhotoGroupsUseCase = get(), getLargeVideosUseCase = get(), getScreenshotsUseCase = get()) } bind GetHomePageDataUseCase::class
     single { GetSimilarPhotoGroupsUseCase(mediaRepository = get())} bind GetSimilarPhotoGroupsUseCase::class
     single { GetLargeVideosUseCase(mediaRepository = get()) } bind GetLargeVideosUseCase::class
     single { GetScreenshotsUseCase(mediaRepository = get()) } bind GetScreenshotsUseCase::class
