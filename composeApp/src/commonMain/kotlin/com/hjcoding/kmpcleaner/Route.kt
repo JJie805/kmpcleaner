@@ -31,4 +31,10 @@ sealed interface Route {
 
     @Serializable
     data object SimilarVideosCleanup
+
+    @Serializable
+    data object ContactsCleanup
+
+    @Serializable
+    data object CalendarCleanup
 }

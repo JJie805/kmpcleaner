@@ -9,9 +9,15 @@ import com.hjcoding.kmpcleaner.feature.feature_auth.data.repository.AuthResposit
 import com.hjcoding.kmpcleaner.feature.feature_auth.domain.AuthDataSource
 import com.hjcoding.kmpcleaner.feature.feature_auth.domain.repository.AuthRespository
 import com.hjcoding.kmpcleaner.feature.feature_auth.domain.use_case.GuestLoginUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.DeleteCalendarEventsUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.DeleteContactsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.DeletePhotosUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.DeleteVideosUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetCalendarEventsUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetContactsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarVideoGroupsUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.calendar.CalendarViewModel
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.contacts.ContactsViewModel
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.HomeViewModel
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.login.LoginViewModel
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.mine.UserViewModel
@@ -46,6 +52,10 @@ val appModule = module {
     single { DeletePhotosUseCase(mediaRepository = get()) } bind DeletePhotosUseCase::class
     single { DeleteVideosUseCase(mediaRepository = get()) } bind DeleteVideosUseCase::class
     single { GetSimilarVideoGroupsUseCase() } bind GetSimilarVideoGroupsUseCase::class
+    single { GetContactsUseCase() }
+    single { DeleteContactsUseCase() }
+    single { GetCalendarEventsUseCase() }
+    single { DeleteCalendarEventsUseCase() }
     single { GuestLoginUseCase(authRespository = get(), tokenManager = get()) }
 
     viewModelOf(::SplashViewModel)
@@ -57,4 +67,6 @@ val appModule = module {
     viewModelOf(::SimilarScreenshotsViewModel)
     viewModelOf(::LargeVideosViewModel)
     viewModelOf(::SimilarVideosViewModel)
+    viewModelOf(::ContactsViewModel)
+    viewModelOf(::CalendarViewModel)
 }

@@ -18,6 +18,8 @@ import com.hjcoding.kmpcleaner.core.designsystem.components.BottomNavItem
 import com.hjcoding.kmpcleaner.core.designsystem.theme.AppTheme
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.mine.UserScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.splash.LicenseAgreementDialog
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.calendar.CalendarScreenRoot
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.contacts.ContactsScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupType
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.HomeScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.largevideos.LargeVideosScreenRoot
@@ -101,6 +103,8 @@ fun App(
                         CleanupType.SIMILAR_SCREENSHOTS -> navController.navigate(Route.SimilarScreenshotsCleanup)
                         CleanupType.ALL_SCREENSHOTS -> navController.navigate(Route.ScreenshotsCleanup)
                         CleanupType.SIMILAR_VIDEOS -> navController.navigate(Route.SimilarVideosCleanup)
+                        CleanupType.CONTACTS -> navController.navigate(Route.ContactsCleanup)
+                        CleanupType.CALENDAR -> navController.navigate(Route.CalendarCleanup)
                         else -> {
                             // Handle other cases if necessary
                         }
@@ -144,6 +148,8 @@ fun App(
         composable<Route.ScreenshotsCleanup> { ScreenshotsScreenRoot() }
         composable<Route.LargeVideosCleanup> { LargeVideosScreenRoot() }
         composable<Route.SimilarVideosCleanup> { SimilarVideosScreenRoot() }
+        composable<Route.ContactsCleanup> { ContactsScreenRoot() }
+        composable<Route.CalendarCleanup> { CalendarScreenRoot() }
     }
 }
 
