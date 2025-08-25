@@ -28,4 +28,7 @@ sealed interface Route {
 
     @Serializable
     data object LargeVideosCleanup
+
+    @Serializable
+    data object SimilarVideosCleanup
 }

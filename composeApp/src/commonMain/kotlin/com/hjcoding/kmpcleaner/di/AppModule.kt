@@ -10,6 +10,8 @@ import com.hjcoding.kmpcleaner.feature.feature_auth.domain.AuthDataSource
 import com.hjcoding.kmpcleaner.feature.feature_auth.domain.repository.AuthRespository
 import com.hjcoding.kmpcleaner.feature.feature_auth.domain.use_case.GuestLoginUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.DeletePhotosUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.DeleteVideosUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarVideoGroupsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.HomeViewModel
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.login.LoginViewModel
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.mine.UserViewModel
@@ -19,9 +21,11 @@ import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRe
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetLargeVideosUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetScreenshotsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarPhotoGroupsUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.largevideos.LargeVideosViewModel
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.screenshots.ScreenshotsViewModel
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarphotos.SimilarPhotosViewModel
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarscreenshots.SimilarScreenshotsViewModel
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarvideos.SimilarVideosViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -40,6 +44,8 @@ val appModule = module {
     single { GetLargeVideosUseCase(mediaRepository = get()) } bind GetLargeVideosUseCase::class
     single { GetScreenshotsUseCase(mediaRepository = get()) } bind GetScreenshotsUseCase::class
     single { DeletePhotosUseCase(mediaRepository = get()) } bind DeletePhotosUseCase::class
+    single { DeleteVideosUseCase(mediaRepository = get()) } bind DeleteVideosUseCase::class
+    single { GetSimilarVideoGroupsUseCase() } bind GetSimilarVideoGroupsUseCase::class
     single { GuestLoginUseCase(authRespository = get(), tokenManager = get()) }
 
     viewModelOf(::SplashViewModel)
@@ -49,4 +55,6 @@ val appModule = module {
     viewModelOf(::ScreenshotsViewModel)
     viewModelOf(::SimilarPhotosViewModel)
     viewModelOf(::SimilarScreenshotsViewModel)
+    viewModelOf(::LargeVideosViewModel)
+    viewModelOf(::SimilarVideosViewModel)
 }

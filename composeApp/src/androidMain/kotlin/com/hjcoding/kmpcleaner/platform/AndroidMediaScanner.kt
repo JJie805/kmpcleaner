@@ -227,4 +227,20 @@ class AndroidMediaScanner(private val context: Context) : MediaScanner {
             completion(false)
         }
     }
+
+    override fun deleteVideos(ids: List<String>, completion: (Boolean) -> Unit) {
+        val contentResolver = context.contentResolver
+        try {
+            val selection = "${MediaStore.Video.Media._ID} IN (${ids.joinToString(separator = ",") { "?" }})"
+            val selectionArgs = ids.toTypedArray()
+            val deletedRows = contentResolver.delete(
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                selection,
+                selectionArgs
+            )
+            completion(deletedRows == ids.size)
+        } catch (e: Exception) {
+            completion(false)
+        }
+    }
 }

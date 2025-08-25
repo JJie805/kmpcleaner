@@ -20,9 +20,11 @@ import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.mine.UserScreen
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.splash.LicenseAgreementDialog
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupType
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.HomeScreenRoot
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.largevideos.LargeVideosScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.screenshots.ScreenshotsScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarphotos.SimilarPhotosScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarscreenshots.SimilarScreenshotsScreenRoot
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarvideos.SimilarVideosScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_tool.presentation.toolbox.ToolboxScreenRoot
 import com.hjcoding.kmpcleaner.platform.exitApp
 import kotlinx.coroutines.launch
@@ -98,6 +100,7 @@ fun App(
                         CleanupType.LARGE_VIDEOS -> navController.navigate(Route.LargeVideosCleanup)
                         CleanupType.SIMILAR_SCREENSHOTS -> navController.navigate(Route.SimilarScreenshotsCleanup)
                         CleanupType.ALL_SCREENSHOTS -> navController.navigate(Route.ScreenshotsCleanup)
+                        CleanupType.SIMILAR_VIDEOS -> navController.navigate(Route.SimilarVideosCleanup)
                         else -> {
                             // Handle other cases if necessary
                         }
@@ -139,7 +142,8 @@ fun App(
         composable<Route.SimilarPhotosCleanup> { SimilarPhotosScreenRoot() }
         composable<Route.SimilarScreenshotsCleanup> { SimilarScreenshotsScreenRoot() }
         composable<Route.ScreenshotsCleanup> { ScreenshotsScreenRoot() }
-        composable<Route.LargeVideosCleanup> { Text("Large Videos Cleanup Page") }
+        composable<Route.LargeVideosCleanup> { LargeVideosScreenRoot() }
+        composable<Route.SimilarVideosCleanup> { SimilarVideosScreenRoot() }
     }
 }
 

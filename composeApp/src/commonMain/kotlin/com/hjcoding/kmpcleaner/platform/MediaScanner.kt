@@ -9,7 +9,7 @@ interface MediaScanner {
 
     fun getAllPhotos(completion: (List<PhotoEntity>) -> Unit)
     fun getScreenshotPhotos(completion: (List<PhotoEntity>) -> Unit)
-    fun getNonScreenshotPhotos(cFompletion: (List<PhotoEntity>) -> Unit)
+    fun getNonScreenshotPhotos(completion: (List<PhotoEntity>) -> Unit)
     fun getAllVideos(completion: (List<VideoEntity>) -> Unit)
 
     // 【新增】按需获取位图的新方法
@@ -20,5 +20,7 @@ interface MediaScanner {
     fun getDhashBitmap(forId: String, completion: (ImageBitmap?) -> Unit)
 
     fun deletePhotos(ids: List<String>, completion: (Boolean) -> Unit)
+
+    fun deleteVideos(ids: List<String>, completion: (Boolean) -> Unit)
 
 }
