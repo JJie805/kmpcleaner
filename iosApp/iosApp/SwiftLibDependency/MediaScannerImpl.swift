@@ -57,6 +57,23 @@ class MediaScannerImpl: ComposeApp.MediaScanner {
         fetchBitmap(forId: id, targetSize: CGSize(width: 9, height: 8), completion: completion)
     }
 
+    func deletePhotos(ids: [String], completion: @escaping (KotlinBoolean) -> Void) {
+        runWithAuthorization {
+            let assets = PHAsset.fetchAssets(withLocalIdentifiers: ids, options: nil)
+            PHPhotoLibrary.shared().performChanges({
+                PHAssetChangeRequest.deleteAssets(assets)
+            }) { success, error in
+                DispatchQueue.main.async {
+                    completion(KotlinBoolean(value: success))
+                }
+            }
+        } notAuthorized: {
+            DispatchQueue.main.async {
+                completion(KotlinBoolean(value: false))
+            }
+        }
+    }
+
     // MARK: - Private Helpers
 
     private func fetchBitmap(forId id: String, targetSize: CGSize, completion: @escaping (Ui_graphicsImageBitmap?) -> Void) {

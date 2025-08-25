@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Photo
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRespository
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.DeletePhotosUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetScreenshotsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 
 class ScreenshotsViewModel(
     private val getScreenshotsUseCase: GetScreenshotsUseCase,
+    private val deletePhotosUseCase: DeletePhotosUseCase,
     private val mediaRepository: MediaRespository
 ) : ViewModel() {
 
@@ -36,7 +38,18 @@ class ScreenshotsViewModel(
                 }
             }
             ScreenshotsAction.DeleteSelected -> {
-                // TODO: Implement deletion logic
+                viewModelScope.launch {
+                    val idsToDelete = _uiState.value.selectedScreenshots.toList()
+                    deletePhotosUseCase(idsToDelete)
+                        .onSuccess {
+                            loadScreenshots()
+                        }
+                        .onFailure { error ->
+                            _uiState.update {
+                                it.copy(error = error.message)
+                            }
+                        }
+                }
             }
         }
     }
@@ -47,7 +60,7 @@ class ScreenshotsViewModel(
 
     private fun loadScreenshots() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true, selectedScreenshots = emptySet()) }
             try {
                 val screenshots = getScreenshotsUseCase()
                 _uiState.update {

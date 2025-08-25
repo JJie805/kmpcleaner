@@ -95,4 +95,18 @@ class MediaRespositoryImpl(val mediaScanner : MediaScanner,
             }
         }
     }
+
+    override suspend fun deletePhotos(ids: List<String>): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            suspendCancellableCoroutine { continuation ->
+                mediaScanner.deletePhotos(ids) { success ->
+                    if (success) {
+                        continuation.resume(Result.success(Unit)) { }
+                    } else {
+                        continuation.resume(Result.failure(Exception("Failed to delete photos"))) { }
+                    }
+                }
+            }
+        }
+    }
 }

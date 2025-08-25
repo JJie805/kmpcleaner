@@ -40,7 +40,6 @@ fun ScreenshotsScreen(
     loadBitmap: suspend (Photo) -> ImageBitmap?
 ) {
     Scaffold(
-        modifier = Modifier.fillMaxSize().background(Color.Red),
         bottomBar = {
             if (uiState.selectedScreenshots.isNotEmpty()) {
                 Button(
@@ -53,7 +52,7 @@ fun ScreenshotsScreen(
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier.fillMaxSize().padding(paddingValues).background(Color.Blue),
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
             if (uiState.isLoading) {
@@ -61,7 +60,20 @@ fun ScreenshotsScreen(
             } else if (uiState.error != null) {
                 Text("Error: ${uiState.error}")
             } else {
-                Text("Found ${uiState.screenshots.size} screenshots")
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 128.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(4.dp)
+                ) {
+                    items(uiState.screenshots, key = { it.id }) { photo ->
+                        ScreenshotItem(
+                            photo = photo,
+                            isSelected = uiState.selectedScreenshots.contains(photo.id),
+                            onToggleSelection = { onAction(ScreenshotsAction.ToggleSelection(photo.id)) },
+                            loadBitmap = loadBitmap
+                        )
+                    }
+                }
             }
         }
     }

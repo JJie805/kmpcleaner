@@ -23,4 +23,6 @@ interface MediaRespository {
     suspend fun getAhashBitmap(id: String): ImageBitmap?
 
     suspend fun getDhashBitmap(id: String): ImageBitmap?
+
+    suspend fun deletePhotos(ids: List<String>): Result<Unit>
 }
