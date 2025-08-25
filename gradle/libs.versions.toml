@@ -23,6 +23,7 @@ ksp = "2.2.0-2.0.2"
 koin = "4.1.0"
 ktor = "3.1.2"
 coil = "3.1.0"
+datetime = "0.7.1"
 
 sqlite = "2.5.1"
 room = "2.7.1"
@@ -85,6 +86,9 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 
 play-services-measurement-api = { group = "com.google.android.gms", name = "play-services-measurement-api", version.ref = "playServicesMeasurementApi" }
 core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "core-splashscreen" }
+
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime"}
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

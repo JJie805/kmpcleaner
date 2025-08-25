@@ -1,9 +1,12 @@
 package com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case
 
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.CalendarEvent
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+
 
 class GetCalendarEventsUseCase {
+    @OptIn(ExperimentalTime::class)
     operator fun invoke(): List<CalendarEvent> {
         // Placeholder implementation
         return listOf(

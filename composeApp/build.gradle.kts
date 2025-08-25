@@ -96,6 +96,8 @@ kotlin {
             //datastore
             implementation(libs.datastore)
             implementation(libs.datastore.preferences)
+            //kotlinx-datetime
+            implementation(libs.kotlinx.datetime)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

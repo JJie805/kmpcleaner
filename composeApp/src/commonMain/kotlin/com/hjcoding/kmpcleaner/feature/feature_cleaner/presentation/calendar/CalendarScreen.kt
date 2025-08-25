@@ -14,9 +14,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.ui.graphics.Color
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @Composable
 fun CalendarScreenRoot(
@@ -73,6 +75,7 @@ fun CalendarScreen(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 private fun CalendarEventItem(
     event: CalendarEvent,
@@ -92,7 +95,7 @@ private fun CalendarEventItem(
                 .toLocalDateTime(TimeZone.currentSystemDefault())
             val endTime = Instant.fromEpochMilliseconds(event.endTime)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
-            val formattedStartTime = "${startTime.year}-${startTime.monthNumber.toString().padStart(2, '0')}-${startTime.dayOfMonth.toString().padStart(2, '0')} ${startTime.hour.toString().padStart(2, '0')}:${startTime.minute.toString().padStart(2, '0')}"
+            val formattedStartTime = "${startTime.year}-${startTime.month.number.toString().padStart(2, '0')}-${startTime.day.toString().padStart(2, '0')} ${startTime.hour.toString().padStart(2, '0')}:${startTime.minute.toString().padStart(2, '0')}"
             val formattedEndTime = "${endTime.hour.toString().padStart(2, '0')}:${endTime.minute.toString().padStart(2, '0')}"
             Text(text = "$formattedStartTime - $formattedEndTime", style = MaterialTheme.typography.bodyMedium)
         }
