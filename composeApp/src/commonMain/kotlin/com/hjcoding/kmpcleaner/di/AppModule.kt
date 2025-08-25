@@ -20,6 +20,8 @@ import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetLargeV
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetScreenshotsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarPhotoGroupsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.screenshots.ScreenshotsViewModel
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarphotos.SimilarPhotosViewModel
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarscreenshots.SimilarScreenshotsViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -45,4 +47,6 @@ val appModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::UserViewModel)
     viewModelOf(::ScreenshotsViewModel)
+    viewModelOf(::SimilarPhotosViewModel)
+    viewModelOf(::SimilarScreenshotsViewModel)
 }

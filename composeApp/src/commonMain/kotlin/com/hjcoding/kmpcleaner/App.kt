@@ -21,6 +21,8 @@ import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.splash.LicenseA
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupType
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.HomeScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.screenshots.ScreenshotsScreenRoot
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarphotos.SimilarPhotosScreenRoot
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarscreenshots.SimilarScreenshotsScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_tool.presentation.toolbox.ToolboxScreenRoot
 import com.hjcoding.kmpcleaner.platform.exitApp
 import kotlinx.coroutines.launch
@@ -134,8 +136,8 @@ fun App(
             )
         }
 
-        composable<Route.SimilarPhotosCleanup> { Text("Similar Photos Cleanup Page") }
-        composable<Route.SimilarScreenshotsCleanup> { Text("Similar Screenshots Cleanup Page") }
+        composable<Route.SimilarPhotosCleanup> { SimilarPhotosScreenRoot() }
+        composable<Route.SimilarScreenshotsCleanup> { SimilarScreenshotsScreenRoot() }
         composable<Route.ScreenshotsCleanup> { ScreenshotsScreenRoot() }
         composable<Route.LargeVideosCleanup> { Text("Large Videos Cleanup Page") }
     }
