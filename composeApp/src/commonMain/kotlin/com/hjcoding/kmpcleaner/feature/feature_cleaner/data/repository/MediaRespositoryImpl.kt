@@ -101,9 +101,9 @@ class MediaRespositoryImpl(val mediaScanner : MediaScanner,
             suspendCancellableCoroutine { continuation ->
                 mediaScanner.deletePhotos(ids) { success ->
                     if (success) {
-                        continuation.resume(Result.success(Unit)) { }
+                        continuation.resume(Result.success(Unit)) { cause, _, _ -> }
                     } else {
-                        continuation.resume(Result.failure(Exception("Failed to delete photos"))) { }
+                        continuation.resume(Result.failure(Exception("Failed to delete photos"))) { cause, _, _ -> }
                     }
                 }
             }
@@ -115,9 +115,9 @@ class MediaRespositoryImpl(val mediaScanner : MediaScanner,
             suspendCancellableCoroutine { continuation ->
                 mediaScanner.deleteVideos(ids) { success ->
                     if (success) {
-                        continuation.resume(Result.success(Unit)) { }
+                        continuation.resume(Result.success(Unit)) { cause, _, _ -> }
                     } else {
-                        continuation.resume(Result.failure(Exception("Failed to delete videos"))) { }
+                        continuation.resume(Result.failure(Exception("Failed to delete videos"))) { cause, _, _ -> }
                     }
                 }
             }

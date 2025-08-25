@@ -8,7 +8,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.PhotoGroup
 import org.koin.compose.viewmodel.koinViewModel
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.screenshots.AsyncPhotoView
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Photo
@@ -18,6 +17,7 @@ import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.ui.graphics.Color
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.SimilarPhotoGroup
 
 @Composable
 fun SimilarScreenshotsScreenRoot(
@@ -79,7 +79,7 @@ fun SimilarScreenshotsScreen(
 
 @Composable
 private fun PhotoGroupItem(
-    group: PhotoGroup,
+    group: SimilarPhotoGroup,
     selectedPhotos: Set<String>,
     onAction: (SimilarScreenshotsAction) -> Unit,
     loadBitmap: suspend (Photo) -> androidx.compose.ui.graphics.ImageBitmap?
