@@ -32,6 +32,8 @@ import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.screenshots.
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarphotos.SimilarPhotosViewModel
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarscreenshots.SimilarScreenshotsViewModel
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarvideos.SimilarVideosViewModel
+import com.hjcoding.kmpcleaner.feature.feature_profile.ProfileViewModel
+import com.hjcoding.kmpcleaner.feature.feature_toolbox.ToolboxViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
