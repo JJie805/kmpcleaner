@@ -139,11 +139,11 @@ fun StorageOverview(storageInfo: StorageInfo) {
             Text("存储空间", fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(
-                progress = { storageInfo.usedBytes.toFloat() / storageInfo.totalBytes.toFloat() },
+                progress = { storageInfo.progress },
                 modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape)
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("已使用 ${storageInfo.usedStorage} / ${storageInfo.totalStorage}", fontSize = 12.sp, color = Color.Gray)
+            Text(storageInfo.usageDescription, fontSize = 12.sp, color = Color.Gray)
         }
     }
 }
