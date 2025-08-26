@@ -1,7 +1,6 @@
 package com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -117,7 +116,7 @@ fun HomeScreen(
 fun HomeHeader() {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Space-Between,
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text("火箭清理王", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold))
@@ -164,7 +163,7 @@ fun CleanupThumbnailItem(item: CleanupItem, onClick: () -> Unit) {
                     Text(item.title, fontWeight = FontWeight.Bold)
                     Text("${item.itemCount} 张图片，可释放 ${item.sizeInBytes / 1024 / 1024}MB", fontSize = 12.sp, color = Color.Gray)
                 }
-                Icon(Icons.Default.ArrowForwardIos, contentDescription = null, tint = Color.Gray)
+                Icon(Icons.AutoMirrored.Filled.ArrowForwardIos, contentDescription = null, tint = Color.Gray)
             }
             Spacer(modifier = Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -200,7 +199,7 @@ fun CleanupSimpleItem(item: CleanupItem, onClick: () -> Unit) {
                     Text("手机相册干净，未发现${item.title}", fontSize = 12.sp, color = Color.Gray)
                 }
             }
-            Icon(Icons.Default.ArrowForwardIos, contentDescription = null, tint = Color.Gray)
+            Icon(Icons.AutoMirrored.Filled.ArrowForwardIos, contentDescription = null, tint = Color.Gray)
         }
     }
 }

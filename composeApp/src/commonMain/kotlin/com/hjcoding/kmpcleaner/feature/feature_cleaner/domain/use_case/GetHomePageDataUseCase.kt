@@ -10,6 +10,7 @@ import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetScreen
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarPhotoGroupsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupItem
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupType
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.DisplayType
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
@@ -17,8 +18,6 @@ data class HomePageData(
     val storageUsage: StorageUsage,
     val cleanupItems: List<CleanupItem>
 )
-
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.DisplayType
 
 class GetHomePageDataUseCase(
     private val mediaRepository: MediaRespository,
