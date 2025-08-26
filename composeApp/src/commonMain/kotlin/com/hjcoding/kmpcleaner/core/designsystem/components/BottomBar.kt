@@ -28,7 +28,8 @@ fun BottomBar(
     onClickBottomItem : ((BottomNavItem)->Unit)? = null,
     items: List<BottomNavItem> = listOf(
         BottomNavItem.Home,
-        BottomNavItem.Mine,
+        BottomNavItem.Toolbox,
+        BottomNavItem.Profile,
     )
 ) {
 
@@ -92,12 +93,12 @@ sealed class BottomNavItem(
     data object Toolbox : BottomNavItem(
         label = "toolbox",
         icon = Icons.Toolbox,
-        route = Route.Home
+        route = Route.ToolBox
     )
 
-    data object Mine : BottomNavItem(
+    data object Profile : BottomNavItem(
         label = "mine",
         icon = Icons.User,
-        route = Route.User
+        route = Route.Profile
     )
 }

@@ -2,7 +2,6 @@ package com.hjcoding.kmpcleaner
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -16,7 +15,6 @@ import com.hjcoding.kmpcleaner.core.data.local.preferences.UserPreferences
 import com.hjcoding.kmpcleaner.core.designsystem.components.Background
 import com.hjcoding.kmpcleaner.core.designsystem.components.BottomNavItem
 import com.hjcoding.kmpcleaner.core.designsystem.theme.AppTheme
-import com.hjcoding.kmpcleaner.feature.feature_profile.ProfileScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.splash.LicenseAgreementDialog
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.calendar.CalendarScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.contacts.ContactsScreenRoot
@@ -27,7 +25,8 @@ import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.screenshots.
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarphotos.SimilarPhotosScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarscreenshots.SimilarScreenshotsScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarvideos.SimilarVideosScreenRoot
-import com.hjcoding.kmpcleaner.feature.feature_tool.presentation.toolbox.ToolboxScreenRoot
+import com.hjcoding.kmpcleaner.feature.feature_profile.ProfileScreenRoot
+import com.hjcoding.kmpcleaner.feature.feature_toolbox.ToolboxScreenRoot
 import com.hjcoding.kmpcleaner.platform.exitApp
 import kotlinx.coroutines.launch
 import org.koin.compose.getKoin
@@ -128,7 +127,7 @@ fun App(
             )
         }
 
-        composable<Route.User> {
+        composable<Route.Profile> {
             ProfileScreenRoot(
                 currentDestination = navController.currentDestination,
                 onClickBottomItem = { item ->
