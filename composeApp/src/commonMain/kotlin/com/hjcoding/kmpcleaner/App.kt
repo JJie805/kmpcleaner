@@ -8,12 +8,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.hjcoding.kmpcleaner.core.data.local.preferences.UserPreferences
 import com.hjcoding.kmpcleaner.core.designsystem.components.Background
-import com.hjcoding.kmpcleaner.core.designsystem.components.BottomNavItem
 import com.hjcoding.kmpcleaner.core.designsystem.theme.AppTheme
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.splash.LicenseAgreementDialog
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.calendar.CalendarScreenRoot
@@ -83,18 +83,20 @@ fun App(
         startDestination = Route.Home
     ) {
 
+        val navigationLambda: (Any) -> Unit = {
+            navController.navigate(it) {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = false // Do not save state
+                }
+                launchSingleTop = true
+                restoreState = false // Do not restore state
+            }
+        }
+
         composable<Route.Home> {
             HomeScreenRoot(
                 currentDestination = navController.currentDestination,
-                onClickBottomItem = { item ->
-                    navController.navigate(item.route) {
-                        popUpTo(BottomNavItem.Home.route) {
-                            saveState = true // 用于页面状态的恢复
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
+                onClickBottomItem = { item -> navigationLambda(item.route) },
                 onClickCleanupItem = { cleanupType ->
                     when (cleanupType) {
                         CleanupType.SIMILAR_PHOTOS -> navController.navigate(Route.SimilarPhotosCleanup)
@@ -115,30 +117,14 @@ fun App(
         composable<Route.ToolBox> {
             ToolboxScreenRoot(
                 currentDestination = navController.currentDestination,
-                onClickBottomItem = { item ->
-                    navController.navigate(item.route) {
-                        popUpTo(BottomNavItem.Toolbox.route) {
-                            saveState = true // 用于页面状态的恢复
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
+                onClickBottomItem = { item -> navigationLambda(item.route) },
             )
         }
 
         composable<Route.Profile> {
             ProfileScreenRoot(
                 currentDestination = navController.currentDestination,
-                onClickBottomItem = { item ->
-                    navController.navigate(item.route) {
-                        popUpTo(BottomNavItem.Home.route) {
-                            saveState = true // 用于页面状态的恢复
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
+                onClickBottomItem = { item -> navigationLambda(item.route) },
             )
         }
 
