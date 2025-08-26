@@ -69,4 +69,6 @@ val appModule = module {
     viewModelOf(::SimilarVideosViewModel)
     viewModelOf(::ContactsViewModel)
     viewModelOf(::CalendarViewModel)
+    viewModelOf(::ToolboxViewModel)
+    viewModelOf(::ProfileViewModel)
 }

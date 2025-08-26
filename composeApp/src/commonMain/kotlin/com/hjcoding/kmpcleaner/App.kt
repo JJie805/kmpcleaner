@@ -16,7 +16,7 @@ import com.hjcoding.kmpcleaner.core.data.local.preferences.UserPreferences
 import com.hjcoding.kmpcleaner.core.designsystem.components.Background
 import com.hjcoding.kmpcleaner.core.designsystem.components.BottomNavItem
 import com.hjcoding.kmpcleaner.core.designsystem.theme.AppTheme
-import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.mine.UserScreenRoot
+import com.hjcoding.kmpcleaner.feature.feature_profile.ProfileScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_auth.presentation.splash.LicenseAgreementDialog
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.calendar.CalendarScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.contacts.ContactsScreenRoot
@@ -129,7 +129,7 @@ fun App(
         }
 
         composable<Route.User> {
-            UserScreenRoot(
+            ProfileScreenRoot(
                 currentDestination = navController.currentDestination,
                 onClickBottomItem = { item ->
                     navController.navigate(item.route) {
