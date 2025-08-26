@@ -15,6 +15,12 @@ enum class CleanupType {
     CALENDAR
 }
 
+enum class DisplayType {
+    FULL_WIDTH_WITH_THUMBNAILS,
+    SIMPLE_ROW,
+    GRID
+}
+
 data class CleanupItem(
     val type: CleanupType,
     val title: String,
@@ -23,7 +29,8 @@ data class CleanupItem(
     val iconColor: Color,
     val thumbnails: List<ImageBitmap>,
     val itemCount: Int = 0, // 新增：项目数量
-    val sizeInBytes: Long = 0L // 新增：占用空间
+    val sizeInBytes: Long = 0L, // 新增：占用空间
+    val displayType: DisplayType
 )
 
 data class HomeState(

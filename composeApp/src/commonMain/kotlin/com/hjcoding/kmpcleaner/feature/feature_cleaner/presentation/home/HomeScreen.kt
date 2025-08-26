@@ -5,35 +5,31 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
 import com.hjcoding.kmpcleaner.core.designsystem.components.BottomBar
 import com.hjcoding.kmpcleaner.core.designsystem.components.BottomNavItem
-import com.hjcoding.kmpcleaner.core.designsystem.icons.Home
-import com.hjcoding.kmpcleaner.core.designsystem.icons.Icons
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Photo
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.model.StorageInfo
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
-
 
 @Composable
 fun HomeScreenRoot(
@@ -42,7 +38,6 @@ fun HomeScreenRoot(
     onClickCleanupItem: (CleanupType) -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
-
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     HomeScreen(
@@ -62,9 +57,9 @@ fun HomeScreen(
     onAction: (HomeAction) -> Unit,
     onClickCleanupItem: (CleanupType) -> Unit,
 ) {
-    Scaffold(modifier = Modifier
-        .fillMaxSize(),
-        containerColor = Color.White,
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = Color(0xFFF3F4F6), // Light gray background
         bottomBar = {
             BottomBar(
                 currentDestination = currentDestination,
@@ -72,37 +67,32 @@ fun HomeScreen(
             )
         }
     ) { paddingValues ->
-
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            // 使用 LazyColumn 提高性能
+            val mainItems = state.cleanupItems.filter { it.displayType != DisplayType.GRID }
+            val gridItems = state.cleanupItems.filter { it.displayType == DisplayType.GRID }
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // 第一个 item: Header
                 item { HomeHeader() }
+                item { StorageOverview(state.storageInfo) }
 
-                // 第二个 item: 存储概览
-                item { StorageOverview(state.storageInfo) } // 从 state 获取数据
-
-                // 第三个 item: "推荐清理" 标题
-                item {
-                    Text(
-                        text = "推荐清理",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
+                items(mainItems.size) { index ->
+                    val item = mainItems[index]
+                    when (item.displayType) {
+                        DisplayType.FULL_WIDTH_WITH_THUMBNAILS -> CleanupThumbnailItem(item, onClick = { onClickCleanupItem(item.type) })
+                        DisplayType.SIMPLE_ROW -> CleanupSimpleItem(item, onClick = { onClickCleanupItem(item.type) })
+                        else -> {}
+                    }
                 }
 
-                // 列表项：清理卡片
-                items(state.cleanupItems.size) { index ->
-                    val item = state.cleanupItems[index]
-                    CleanupItemCard(cleanupItem = item, onClick = { onClickCleanupItem(item.type) })
+                if (gridItems.isNotEmpty()) {
+                    item { CleanupGridSection(gridItems, onClickCleanupItem) }
                 }
             }
 
-            // 覆盖在 LazyColumn 之上的加载和错误提示
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
@@ -125,208 +115,127 @@ fun HomeScreen(
 
 @Composable
 fun HomeHeader() {
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 15.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Space-Between,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = "存储空间清理",
-            fontSize = 16.sp
-        )
-        Text(
-            text = "释放您的设备空间",
-            fontSize = 12.sp
-        )
+        Text("火箭清理王", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold))
+        Button(onClick = { /* TODO: Handle Pro click */ }) {
+            Text("PRO")
+        }
     }
 }
 
 @Composable
 fun StorageOverview(storageInfo: StorageInfo) {
+    // This can be further customized to match the picture exactly
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp),
-        colors = CardDefaults.outlinedCardColors(containerColor = Color.White),
-        elevation = CardDefaults.outlinedCardElevation(defaultElevation = 2.dp),
-        border = CardDefaults.outlinedCardBorder()
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 15.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Text(
-                text = "存储空间",
-                fontSize = 16.sp
-            )
-            Text(
-                text = "95G",
-                fontSize = 12.sp
-            )
-            Text(
-                text = "已使用128G中的95G",
-                fontSize = 12.sp
-            )
-            Spacer(Modifier.height(15.dp))
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("存储空间", fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 10.dp),
-                progress = { 30.0f },
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.onPrimary
+                progress = { storageInfo.usedBytes.toFloat() / storageInfo.totalBytes.toFloat() },
+                modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape)
             )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("已使用 ${storageInfo.usedStorage} / ${storageInfo.totalStorage}", fontSize = 12.sp, color = Color.Gray)
         }
     }
 }
 
+// For items with thumbnails like 'Similar Photos'
 @Composable
-fun RingIcon(
-    modifier: Modifier = Modifier
-        .size(64.dp) // 外圈总大
-        .clip(CircleShape)
-        .background(Color.Blue, CircleShape)
-        .padding(12.dp),
-    imageVector: ImageVector,
-    tint: Color
-) {
-    Box(
-        modifier = modifier, // 留出内圈空间
-        contentAlignment = Alignment.Center
+fun CleanupThumbnailItem(item: CleanupItem, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Icon(
-            imageVector = imageVector,
-            contentDescription = null,
-            tint = tint
-        )
-    }
-}
-
-@Composable
-fun CleanupItemCard(cleanupItem: CleanupItem, onClick: () -> Unit) {
-    Card(modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 10.dp)
-        .clickable { onClick() },
-        colors = CardDefaults.outlinedCardColors(containerColor = Color.White),
-        elevation = CardDefaults.outlinedCardElevation(defaultElevation = 2.dp),
-        border = CardDefaults.outlinedCardBorder()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 5.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            RingIcon(
-                imageVector = cleanupItem.icon,
-                tint = cleanupItem.iconColor
-            )
-            Spacer(Modifier.width(10.dp))
-            Column {
-                Text(text = cleanupItem.title)
-                Text(text = cleanupItem.describe)
-            }
-
-            Spacer(Modifier.weight(1f))
-
-            if (cleanupItem.thumbnails.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(Color.Red)
-                        .padding(horizontal = 5.dp, vertical = 2.dp)
-                ) {
-                    Column {
-                        Text(text = "9张张片")
-                        Text(text = "13.15M")
-                    }
-                    Icon(
-                        imageVector = Icons.Home,
-                        contentDescription = null
-                    )
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(item.icon, contentDescription = null, modifier = Modifier.size(40.dp))
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(item.title, fontWeight = FontWeight.Bold)
+                    Text("${item.itemCount} 张图片，可释放 ${item.sizeInBytes / 1024 / 1024}MB", fontSize = 12.sp, color = Color.Gray)
                 }
+                Icon(Icons.Default.ArrowForwardIos, contentDescription = null, tint = Color.Gray)
             }
-        }
-
-        val thumbnails = cleanupItem.thumbnails
-        if (thumbnails.isNotEmpty()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                // 无论 1 张还是 2 张，权重都固定为 1f
-                thumbnails.forEach { thumbnail ->
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                item.thumbnails.forEach {
                     Image(
-                        modifier = Modifier
-                            .weight(1f)
-                            .aspectRatio(2.0f)
-                            .clip(RoundedCornerShape(10.dp)),
-                        bitmap = thumbnail,
-                        contentScale = ContentScale.Crop,
-                        contentDescription = null
+                        bitmap = it,
+                        contentDescription = null,
+                        modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(8.dp)),
+                        contentScale = ContentScale.Crop
                     )
-                }
-
-                // 如果只有 1 张图片，补一个空的 Spacer 占位，使布局宽度一致
-                if (thumbnails.size == 1) {
-                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
         }
     }
 }
 
-@Preview
+// For items without content like 'Large Videos'
 @Composable
-fun HomeScreenPreview() {
-    HomeScreen(
-        state = HomeState(),
-        onAction = {},
-        onClickCleanupItem = {}
-    )
-}
-
-@Preview
-@Composable
-fun IconPreview() {
-    Box(
-        modifier = Modifier
-            .size(50.dp) // 外圈总大
-            .clip(CircleShape)
-            .background(Color.Blue, CircleShape)
-            .padding(12.dp), // 留出内圈空间
-        contentAlignment = Alignment.Center
+fun CleanupSimpleItem(item: CleanupItem, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Icon(
-            imageVector = Icons.Home,
-            contentDescription = null,
-            tint = Color.Black
-        )
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(item.icon, contentDescription = null, modifier = Modifier.size(40.dp))
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(item.title, fontWeight = FontWeight.Bold)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color.Green, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("手机相册干净，未发现${item.title}", fontSize = 12.sp, color = Color.Gray)
+                }
+            }
+            Icon(Icons.Default.ArrowForwardIos, contentDescription = null, tint = Color.Gray)
+        }
+    }
+}
+
+// For grid items like 'Contacts', 'Calendar'
+@Composable
+fun CleanupGridSection(items: List<CleanupItem>, onClickCleanupItem: (CleanupType) -> Unit) {
+    Column {
+        Text("其他清理", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), modifier = Modifier.padding(bottom = 8.dp))
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.height(240.dp) // Adjust height as needed
+        ) {
+            items(items.size) { index ->
+                val item = items[index]
+                GridItem(item, onClick = { onClickCleanupItem(item.type) })
+            }
+        }
     }
 }
 
 @Composable
-fun AsyncPhotoView(photo: Photo, loadBitmap: suspend (Photo) -> ImageBitmap?) {
-    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-
-    // LaunchedEffect 会在 Composable 首次进入组合时执行
-    // 并且当 photo.id 变化时会重启
-    LaunchedEffect(photo.id) {
-        imageBitmap = loadBitmap(photo) // 触发按需加载
-    }
-
-    if (imageBitmap != null) {
-        Image(bitmap = imageBitmap!!, contentDescription = null)
-    } else {
-        Box(modifier = Modifier.size(100.dp).background(Color.Gray)) { // 显示占位符
-            CircularProgressIndicator()
+fun GridItem(item: CleanupItem, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Icon(item.icon, contentDescription = null, modifier = Modifier.size(40.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(item.title, fontWeight = FontWeight.Bold)
+            Text("${item.itemCount} 项", fontSize = 12.sp, color = Color.Gray)
         }
     }
 }

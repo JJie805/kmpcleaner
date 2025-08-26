@@ -18,6 +18,8 @@ data class HomePageData(
     val cleanupItems: List<CleanupItem>
 )
 
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.DisplayType
+
 class GetHomePageDataUseCase(
     private val mediaRepository: MediaRespository,
     private val getSimilarPhotoGroupsUseCase: GetSimilarPhotoGroupsUseCase,
@@ -32,10 +34,15 @@ class GetHomePageDataUseCase(
                 val similarPhotosJob = async {
                     val allPhotos = mediaRepository.getNonScreenshotPhotos()
                     val similarGroups = getSimilarPhotoGroupsUseCase(allPhotos)
-                    val firstGroupPhotos = similarGroups.firstOrNull()?.photos ?: emptyList()
-                    val thumbnails = firstGroupPhotos.take(2).map { photo ->
-                        async { mediaRepository.getThumbnailBitmap(photo.id, isVideo = false) }
-                    }.mapNotNull { it.await() }
+                    val itemCount = similarGroups.sumOf { it.photos.size }
+                    val thumbnails = if (itemCount > 0) {
+                        val firstGroupPhotos = similarGroups.first().photos
+                        firstGroupPhotos.take(2).map { photo ->
+                            async { mediaRepository.getThumbnailBitmap(photo.id, isVideo = false) }
+                        }.mapNotNull { it.await() }
+                    } else {
+                        emptyList()
+                    }
 
                     CleanupItem(
                         type = CleanupType.SIMILAR_PHOTOS,
@@ -44,8 +51,9 @@ class GetHomePageDataUseCase(
                         icon = Icons.SimilarImage,
                         iconColor = Color.White,
                         thumbnails = thumbnails,
-                        itemCount = similarGroups.sumOf { it.photos.size },
-                        sizeInBytes = similarGroups.sumOf { group -> group.photos.sumOf { it.sizeInBytes } }
+                        itemCount = itemCount,
+                        sizeInBytes = similarGroups.sumOf { group -> group.photos.sumOf { it.sizeInBytes } },
+                        displayType = if (itemCount > 0) DisplayType.FULL_WIDTH_WITH_THUMBNAILS else DisplayType.SIMPLE_ROW
                     )
                 }
 
@@ -53,10 +61,15 @@ class GetHomePageDataUseCase(
                 val screenshotsJob = async {
                     val allScreenshots = mediaRepository.getScreenshotPhotos()
                     val similarScreenshotGroups = getSimilarPhotoGroupsUseCase(allScreenshots)
-                    val firstScreenshotGroup = similarScreenshotGroups.firstOrNull()?.photos ?: emptyList()
-                    val thumbnails = firstScreenshotGroup.take(2).map { photo ->
-                        async { mediaRepository.getThumbnailBitmap(photo.id, isVideo = false) }
-                    }.mapNotNull { it.await() }
+                    val itemCount = similarScreenshotGroups.sumOf { it.photos.size }
+                    val thumbnails = if (itemCount > 0) {
+                        val firstGroupPhotos = similarScreenshotGroups.first().photos
+                        firstGroupPhotos.take(2).map { photo ->
+                            async { mediaRepository.getThumbnailBitmap(photo.id, isVideo = false) }
+                        }.mapNotNull { it.await() }
+                    } else {
+                        emptyList()
+                    }
 
                     CleanupItem(
                         type = CleanupType.SIMILAR_SCREENSHOTS,
@@ -65,17 +78,23 @@ class GetHomePageDataUseCase(
                         icon = Icons.SimilarScreenshot,
                         iconColor = Color.White,
                         thumbnails = thumbnails,
-                        itemCount = similarScreenshotGroups.sumOf { it.photos.size },
-                        sizeInBytes = similarScreenshotGroups.sumOf { group -> group.photos.sumOf { it.sizeInBytes } }
+                        itemCount = itemCount,
+                        sizeInBytes = similarScreenshotGroups.sumOf { group -> group.photos.sumOf { it.sizeInBytes } },
+                        displayType = if (itemCount > 0) DisplayType.FULL_WIDTH_WITH_THUMBNAILS else DisplayType.SIMPLE_ROW
                     )
                 }
 
                 // --- LARGE VIDEOS LOGIC ---
                 val largeVideosJob = async {
                     val largeVideos = getLargeVideosUseCase()
-                    val thumbnails = largeVideos.take(2).map { video ->
-                        async { mediaRepository.getThumbnailBitmap(video.id, isVideo = true) }
-                    }.mapNotNull { it.await() }
+                    val itemCount = largeVideos.size
+                    val thumbnails = if (itemCount > 0) {
+                        largeVideos.take(2).map { video ->
+                            async { mediaRepository.getThumbnailBitmap(video.id, isVideo = true) }
+                        }.mapNotNull { it.await() }
+                    } else {
+                        emptyList()
+                    }
 
                     CleanupItem(
                         type = CleanupType.LARGE_VIDEOS,
@@ -84,29 +103,82 @@ class GetHomePageDataUseCase(
                         icon = Icons.Video,
                         iconColor = Color.White,
                         thumbnails = thumbnails,
-                        itemCount = largeVideos.size,
-                        sizeInBytes = largeVideos.sumOf { it.sizeInBytes }
+                        itemCount = itemCount,
+                        sizeInBytes = largeVideos.sumOf { it.sizeInBytes },
+                        displayType = if (itemCount > 0) DisplayType.FULL_WIDTH_WITH_THUMBNAILS else DisplayType.SIMPLE_ROW
                     )
                 }
 
-                // --- ALL SCREENSHOTS LOGIC ---
+                // --- SIMILAR VIDEOS LOGIC ---
+                val similarVideosJob = async {
+                    // Placeholder: Using large videos logic for now
+                    val similarVideos = getLargeVideosUseCase() 
+                    val itemCount = similarVideos.size
+                    val thumbnails = if (itemCount > 0) {
+                        similarVideos.take(2).map { video ->
+                            async { mediaRepository.getThumbnailBitmap(video.id, isVideo = true) }
+                        }.mapNotNull { it.await() }
+                    } else {
+                        emptyList()
+                    }
+                    
+                    CleanupItem(
+                        type = CleanupType.SIMILAR_VIDEOS,
+                        title = "相似视频",
+                        describe = "查找并清理相似的视频",
+                        icon = Icons.Video,
+                        iconColor = Color.White,
+                        thumbnails = thumbnails,
+                        itemCount = itemCount,
+                        sizeInBytes = similarVideos.sumOf { it.sizeInBytes },
+                        displayType = if (itemCount > 0) DisplayType.FULL_WIDTH_WITH_THUMBNAILS else DisplayType.SIMPLE_ROW
+                    )
+                }
+
+                // --- GRID ITEMS ---
                 val allScreenshotsJob = async {
                     val allScreenshots = getScreenshotsUseCase()
-                    val thumbnails = allScreenshots.take(2).map { photo ->
-                        async { mediaRepository.getThumbnailBitmap(photo.id, isVideo = false) }
-                    }.mapNotNull { it.await() }
-
                     CleanupItem(
                         type = CleanupType.ALL_SCREENSHOTS,
                         title = "所有截图",
                         describe = "清理所有屏幕截图",
-                        icon = Icons.SimilarScreenshot, // Reusing icon for now
+                        icon = Icons.SimilarScreenshot,
                         iconColor = Color.White,
-                        thumbnails = thumbnails,
+                        thumbnails = emptyList(),
                         itemCount = allScreenshots.size,
-                        sizeInBytes = allScreenshots.sumOf { it.sizeInBytes }
+                        sizeInBytes = allScreenshots.sumOf { it.sizeInBytes },
+                        displayType = DisplayType.GRID
                     )
                 }
+
+                val contactsJob = async {
+                    CleanupItem(
+                        type = CleanupType.CONTACTS,
+                        title = "通讯录清理",
+                        describe = "清理无效或重复的联系人",
+                        icon = Icons.SimilarImage,
+                        iconColor = Color.White,
+                        thumbnails = emptyList(),
+                        itemCount = 5, // Placeholder
+                        sizeInBytes = 0,
+                        displayType = DisplayType.GRID
+                    )
+                }
+
+                val calendarJob = async {
+                    CleanupItem(
+                        type = CleanupType.CALENDAR,
+                        title = "日历清理",
+                        describe = "清理已过期的日历和提醒事项",
+                        icon = Icons.SimilarImage,
+                        iconColor = Color.White,
+                        thumbnails = emptyList(),
+                        itemCount = 3, // Placeholder
+                        sizeInBytes = 0,
+                        displayType = DisplayType.GRID
+                    )
+                }
+
 
                 val storageJob = async { mediaRepository.getStorageUsage() }
 
@@ -115,7 +187,10 @@ class GetHomePageDataUseCase(
                     similarPhotosJob.await(),
                     screenshotsJob.await(),
                     largeVideosJob.await(),
-                    allScreenshotsJob.await()
+                    allScreenshotsJob.await(),
+                    similarVideosJob.await(),
+                    contactsJob.await(),
+                    calendarJob.await()
                 )
 
                 Result.success(HomePageData(storageUsage, cleanupItems))
@@ -125,3 +200,4 @@ class GetHomePageDataUseCase(
         }
     }
 }
+
