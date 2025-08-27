@@ -2,6 +2,7 @@ package com.hjcoding.kmpcleaner
 
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.DeviceStorageSource
 import com.hjcoding.kmpcleaner.platform.Analytics
+import com.hjcoding.kmpcleaner.platform.CalendarScanner
 import com.hjcoding.kmpcleaner.platform.ContactsScanner
 import com.hjcoding.kmpcleaner.platform.MediaScanner
 import com.hjcoding.kmpcleaner.platform.Platform
@@ -16,6 +17,7 @@ interface SwiftLibDependencyFactory {
     fun provideMediaScannerImpl(): MediaScanner
     fun provideDeviceStorageSourceImpl(): DeviceStorageSource
     fun provideContactsScannerImpl(): ContactsScanner
+    fun provideCalendarScannerImpl(): CalendarScanner
 }
 
 internal fun swiftLibDependenciesModule(factory: SwiftLibDependencyFactory): Module = module {
@@ -24,6 +26,7 @@ internal fun swiftLibDependenciesModule(factory: SwiftLibDependencyFactory): Mod
     single { factory.provideMediaScannerImpl() } bind MediaScanner::class
     single { factory.provideDeviceStorageSourceImpl() } bind DeviceStorageSource::class
     single { factory.provideContactsScannerImpl() } bind ContactsScanner::class
+    single { factory.provideCalendarScannerImpl() } bind CalendarScanner::class
 }
 
 fun KoinApplication.provideSwiftLibDependencyFactory(factory: SwiftLibDependencyFactory) =

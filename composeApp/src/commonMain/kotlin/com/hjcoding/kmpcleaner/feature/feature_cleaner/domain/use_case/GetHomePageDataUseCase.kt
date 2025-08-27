@@ -5,14 +5,10 @@ import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarScreenshot
 import com.hjcoding.kmpcleaner.core.designsystem.icons.Video
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.StorageUsage
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRespository
-import androidx.compose.ui.graphics.Color
-import com.hjcoding.kmpcleaner.core.designsystem.icons.Icons
-import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarImage
-import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarScreenshot
-import com.hjcoding.kmpcleaner.core.designsystem.icons.Video
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.StorageUsage
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRespository
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetDuplicateContactsUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetInvalidContactsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetLargeVideosUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetPastCalendarEventsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetScreenshotsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarPhotoGroupsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarVideoGroupsUseCase
@@ -34,7 +30,8 @@ class GetHomePageDataUseCase(
     private val getScreenshotsUseCase: GetScreenshotsUseCase,
     private val getSimilarVideoGroupsUseCase: GetSimilarVideoGroupsUseCase,
     private val getDuplicateContactsUseCase: GetDuplicateContactsUseCase,
-    private val getInvalidContactsUseCase: GetInvalidContactsUseCase
+    private val getInvalidContactsUseCase: GetInvalidContactsUseCase,
+    private val getPastCalendarEventsUseCase: GetPastCalendarEventsUseCase
 ) {
 
     suspend operator fun invoke(): Result<HomePageData> {
@@ -180,6 +177,7 @@ class GetHomePageDataUseCase(
                 }
 
                 val calendarJob = async {
+                    val pastEvents = getPastCalendarEventsUseCase()
                     CleanupItem(
                         type = CleanupType.CALENDAR,
                         title = "日历清理",
@@ -187,7 +185,7 @@ class GetHomePageDataUseCase(
                         icon = Icons.SimilarImage,
                         iconColor = Color.White,
                         thumbnails = emptyList(),
-                        itemCount = 3, // Placeholder
+                        itemCount = pastEvents.size,
                         sizeInBytes = 0,
                         displayType = DisplayType.GRID
                     )

@@ -92,11 +92,59 @@ class MediaScannerImpl: ComposeApp.MediaScanner {
         }
     }
 
+        // KMP-compatible completion handler version
     func getKeyFrames(forVideoId: String, completion: @escaping ([Any]) -> Void) {
         Task {
             let result = await getKeyFrames(forVideoId: forVideoId)
             completion(result)
         }
+    }
+
+    // Modern async version for internal logic
+    private func getKeyFrames(forVideoId: String) async -> [Ui_graphicsImageBitmap] {
+        let assets = PHAsset.fetchAssets(withLocalIdentifiers: [forVideoId], options: nil)
+        guard let asset = assets.firstObject else { return [] }
+
+        // Correctly wrap the callback in a continuation, handling the optional AVAsset?
+        let avAsset: AVAsset? = await withCheckedContinuation { continuation in
+            let imageManager = PHImageManager.default()
+            let options = PHVideoRequestOptions()
+            options.version = .original
+            options.isNetworkAccessAllowed = true
+            imageManager.requestAVAsset(forVideo: asset, options: options) { asset, _, _ in
+                continuation.resume(returning: asset)
+            }
+        }
+
+        guard let unwrappedAvAsset = avAsset else {
+            return []
+        }
+
+        var keyFrames: [Ui_graphicsImageBitmap] = []
+        do {
+            let imageGenerator = AVAssetImageGenerator(asset: unwrappedAvAsset)
+            imageGenerator.appliesPreferredTrackTransform = true
+            let duration = try await unwrappedAvAsset.load(.duration)
+            let durationInSeconds = CMTimeGetSeconds(duration)
+            
+            guard durationInSeconds > 0 else { return [] }
+            
+            let times = (0..<5).map {
+                NSValue(time: CMTime(seconds: durationInSeconds * Double($0) / 4.0, preferredTimescale: 600))
+            }
+            
+            for try await result in imageGenerator.images(for: times) {
+                let uiImage = UIImage(cgImage: result.image)
+                let resizedImage = self.resizeUIImage(uiImage, targetSize: CGSize(width: 9, height: 8))
+                if let bitmap = self.uiImageToImageBitmap(resizedImage) {
+                    keyFrames.append(bitmap)
+                }
+            }
+        } catch {
+            print("Error generating key frames: \(error)")
+        }
+        
+        return keyFrames
     }
 
     private func getKeyFrames(forVideoId: String) async -> [Ui_graphicsImageBitmap] {
