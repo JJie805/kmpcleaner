@@ -26,7 +26,7 @@ import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarphoto
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarscreenshots.SimilarScreenshotsScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarvideos.SimilarVideosScreenRoot
 import com.hjcoding.kmpcleaner.feature.feature_profile.ProfileScreenRoot
-import com.hjcoding.kmpcleaner.feature.feature_toolbox.ToolboxScreenRoot
+import com.hjcoding.kmpcleaner.feature.feature_toolbox.presentation.ToolboxScreenRoot
 import com.hjcoding.kmpcleaner.platform.exitApp
 import kotlinx.coroutines.launch
 import org.koin.compose.getKoin

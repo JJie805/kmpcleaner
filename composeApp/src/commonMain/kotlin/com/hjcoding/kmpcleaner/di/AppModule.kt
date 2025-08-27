@@ -23,7 +23,7 @@ import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarphoto
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarscreenshots.SimilarScreenshotsViewModel
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarvideos.SimilarVideosViewModel
 import com.hjcoding.kmpcleaner.feature.feature_profile.ProfileViewModel
-import com.hjcoding.kmpcleaner.feature.feature_toolbox.domain.GetSystemInfoUseCase
+import com.hjcoding.kmpcleaner.feature.feature_toolbox.domain.use_case.GetSystemInfoUseCase
 import com.hjcoding.kmpcleaner.feature.feature_toolbox.presentation.ToolboxViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
