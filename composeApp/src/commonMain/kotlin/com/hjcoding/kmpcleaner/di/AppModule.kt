@@ -23,7 +23,8 @@ import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarphoto
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarscreenshots.SimilarScreenshotsViewModel
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarvideos.SimilarVideosViewModel
 import com.hjcoding.kmpcleaner.feature.feature_profile.ProfileViewModel
-import com.hjcoding.kmpcleaner.feature.feature_toolbox.ToolboxViewModel
+import com.hjcoding.kmpcleaner.feature.feature_toolbox.domain.GetSystemInfoUseCase
+import com.hjcoding.kmpcleaner.feature.feature_toolbox.presentation.ToolboxViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -54,6 +55,7 @@ val appModule = module {
     single { GetDuplicateContactsUseCase(contactsScanner = get()) }
     single { GetInvalidContactsUseCase(contactsScanner = get()) }
     single { GetPastCalendarEventsUseCase(calendarScanner = get()) }
+    single { GetSystemInfoUseCase(platform = get(), mediaRespository = get()) }
 
     single { DeletePhotosUseCase(mediaRepository = get()) }
     single { DeleteVideosUseCase(mediaRepository = get()) }

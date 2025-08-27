@@ -1,4 +1,4 @@
-package com.hjcoding.kmpcleaner.feature.feature_toolbox
+package com.hjcoding.kmpcleaner.feature.feature_toolbox.presentation
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
