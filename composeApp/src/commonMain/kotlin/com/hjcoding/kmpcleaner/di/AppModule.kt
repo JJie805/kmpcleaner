@@ -36,14 +36,22 @@ val appModule = module {
     single { AuthDataSourceImpl(client = get()) } bind AuthDataSource::class
     single { AuthRespositoryImpl(authDataSource = get()) } bind AuthRespository::class
 
-    single { MediaRespositoryImpl(mediaScanner = get(), deviceStorageSource = get()) } bind MediaRespository::class
-    single { GetHomePageDataUseCase(mediaRepository = get(), getSimilarPhotoGroupsUseCase = get(), getLargeVideosUseCase = get(), getScreenshotsUseCase = get()) } bind GetHomePageDataUseCase::class
+    single {
+        MediaRespositoryImpl(mediaScanner = get(), contactsScanner = get(), deviceStorageSource = get()) } bind MediaRespository::class
+    single { GetHomePageDataUseCase(
+        mediaRepository = get(),
+        getSimilarPhotoGroupsUseCase = get(),
+        getLargeVideosUseCase = get(),
+        getScreenshotsUseCase = get(),
+        getSimilarVideoGroupsUseCase = get(),
+        getDuplicateContactsUseCase = get()
+    ) } bind GetHomePageDataUseCase::class
     single { GetSimilarPhotoGroupsUseCase(mediaRepository = get())} bind GetSimilarPhotoGroupsUseCase::class
     single { GetLargeVideosUseCase(mediaRepository = get()) } bind GetLargeVideosUseCase::class
     single { GetScreenshotsUseCase(mediaRepository = get()) } bind GetScreenshotsUseCase::class
     single { DeletePhotosUseCase(mediaRepository = get()) } bind DeletePhotosUseCase::class
     single { DeleteVideosUseCase(mediaRepository = get()) } bind DeleteVideosUseCase::class
-    single { GetSimilarVideoGroupsUseCase() } bind GetSimilarVideoGroupsUseCase::class
+    single { GetSimilarVideoGroupsUseCase(mediaRepository = get()) } bind GetSimilarVideoGroupsUseCase::class
     single { GetContactsUseCase() }
     single { DeleteContactsUseCase() }
     single { GetCalendarEventsUseCase() }

@@ -3,7 +3,6 @@ package com.hjcoding.kmpcleaner.platform
 import androidx.compose.ui.graphics.ImageBitmap
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.data.local.PhotoEntity
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.data.local.VideoEntity
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Contact
 
 
 interface MediaScanner {
@@ -25,7 +24,5 @@ interface MediaScanner {
     fun deleteVideos(ids: List<String>, completion: (Boolean) -> Unit)
 
     fun getKeyFrames(forVideoId: String, completion: (List<ImageBitmap?>) -> Unit)
-
-    fun getContacts(completion: (List<Contact>) -> Unit)
 
 }

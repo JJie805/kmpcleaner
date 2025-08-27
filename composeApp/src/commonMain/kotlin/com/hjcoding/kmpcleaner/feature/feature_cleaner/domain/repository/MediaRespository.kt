@@ -1,6 +1,7 @@
 package com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository
 
 import androidx.compose.ui.graphics.ImageBitmap
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Contact
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Photo
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.StorageUsage
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Video
@@ -23,6 +24,10 @@ interface MediaRespository {
     suspend fun getAhashBitmap(id: String): ImageBitmap?
 
     suspend fun getDhashBitmap(id: String): ImageBitmap?
+
+    suspend fun getKeyFrames(id: String): List<ImageBitmap?>
+
+    suspend fun getContacts() : List<Contact>
 
     suspend fun deletePhotos(ids: List<String>): Result<Unit>
 

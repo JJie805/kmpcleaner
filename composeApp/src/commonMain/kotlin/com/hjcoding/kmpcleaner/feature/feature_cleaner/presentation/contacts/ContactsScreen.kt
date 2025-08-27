@@ -85,7 +85,10 @@ private fun ContactItem(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(text = contact.name, style = MaterialTheme.typography.bodyLarge)
-            Text(text = contact.phoneNumber, style = MaterialTheme.typography.bodyMedium)
+            contact.phoneNumbers.forEach {
+                Text(text = it, style = MaterialTheme.typography.bodyMedium)
+            }
+
         }
         if (isSelected) {
             Icon(

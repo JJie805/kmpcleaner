@@ -4,20 +4,6 @@ import SwiftUI
 import UIKit
 
 class SwiftLibDependencyFactoryImpl: SwiftLibDependencyFactory {
-    static var shared = SwiftLibDependencyFactoryImpl()
-
-    func provideFirebaseAnalyticsImpl() -> any Analytics {
-        return FirebaseAnalyticsImpl()
-    }
-
-    func providePlatformImpl() -> any Platform {
-        return IosPlatform()
-    }
-
-    import Foundation
-import ComposeApp
-
-class SwiftLibDependencyFactoryImpl: SwiftLibDependencyFactory {
     static let shared = SwiftLibDependencyFactoryImpl()
 
     private let mediaScanner: MediaScanner = MediaScannerImpl()
@@ -41,10 +27,5 @@ class SwiftLibDependencyFactoryImpl: SwiftLibDependencyFactory {
 
     func provideContactsScannerImpl() -> ContactsScanner {
         return mediaScanner as! ContactsScanner
-    }
-}
-    
-    func provideDeviceStorageSourceImpl() -> any DeviceStorageSource {
-        return DeviceStorageSourceImpl()
     }
 }

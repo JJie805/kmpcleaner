@@ -6,8 +6,8 @@ class GetContactsUseCase {
     operator fun invoke(): List<Contact> {
         // Placeholder implementation
         return listOf(
-            Contact("1", "John Doe", "123-456-7890"),
-            Contact("2", "Jane Doe", "098-765-4321")
+            Contact("1", "John Doe",  emptyList(), emptyList()),
+            Contact("2", "Jane Doe", emptyList(), emptyList())
         )
     }
 }

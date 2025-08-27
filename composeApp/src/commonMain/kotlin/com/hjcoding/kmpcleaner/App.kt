@@ -86,10 +86,10 @@ fun App(
         val navigationLambda: (Any) -> Unit = {
             navController.navigate(it) {
                 popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = false // Do not save state
+                    saveState = true
                 }
                 launchSingleTop = true
-                restoreState = false // Do not restore state
+                restoreState = true
             }
         }
 

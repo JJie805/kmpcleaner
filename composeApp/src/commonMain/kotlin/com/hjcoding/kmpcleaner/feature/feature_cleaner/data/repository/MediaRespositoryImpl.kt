@@ -5,17 +5,20 @@ import com.hjcoding.kmpcleaner.feature.feature_cleaner.data.mappers.toPhoto
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.data.mappers.toStorageUsage
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.data.mappers.toVideo
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.DeviceStorageSource
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Contact
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Photo
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.StorageUsage
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Video
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRespository
+import com.hjcoding.kmpcleaner.platform.ContactsScanner
 import com.hjcoding.kmpcleaner.platform.MediaScanner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
-class MediaRespositoryImpl(val mediaScanner : MediaScanner,
+class MediaRespositoryImpl(private val mediaScanner : MediaScanner,
+                           private val contactsScanner : ContactsScanner,
                            private val deviceStorageSource: DeviceStorageSource
 ) : MediaRespository {
 
@@ -91,6 +94,26 @@ class MediaRespositoryImpl(val mediaScanner : MediaScanner,
             suspendCancellableCoroutine { continuation ->
                 mediaScanner.getDhashBitmap(forId = id) { bitmap ->
                     continuation.resume(bitmap){cause, value, context -> }
+                }
+            }
+        }
+    }
+
+    override suspend fun getKeyFrames(id: String): List<ImageBitmap?> {
+        return withContext(Dispatchers.IO) {
+            suspendCancellableCoroutine { continuation ->
+                mediaScanner.getKeyFrames(forVideoId = id) { bitmap ->
+                    continuation.resume(bitmap){cause, value, context -> }
+                }
+            }
+        }
+    }
+
+    override suspend fun getContacts() : List<Contact>{
+        return withContext(Dispatchers.IO) {
+            suspendCancellableCoroutine { continuation ->
+                contactsScanner.getContacts { contacts ->
+                    continuation.resume(contacts){cause, value, context -> }
                 }
             }
         }
