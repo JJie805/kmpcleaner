@@ -8,6 +8,7 @@ import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRe
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetLargeVideosUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetScreenshotsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarPhotoGroupsUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarVideoGroupsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupItem
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupType
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.DisplayType
@@ -23,7 +24,9 @@ class GetHomePageDataUseCase(
     private val mediaRepository: MediaRespository,
     private val getSimilarPhotoGroupsUseCase: GetSimilarPhotoGroupsUseCase,
     private val getLargeVideosUseCase: GetLargeVideosUseCase,
-    private val getScreenshotsUseCase: GetScreenshotsUseCase
+    private val getScreenshotsUseCase: GetScreenshotsUseCase,
+    private val getSimilarVideoGroupsUseCase: GetSimilarVideoGroupsUseCase,
+    private val getDuplicateContactsUseCase: GetDuplicateContactsUseCase
 ) {
 
     suspend operator fun invoke(): Result<HomePageData> {
@@ -110,11 +113,12 @@ class GetHomePageDataUseCase(
 
                 // --- SIMILAR VIDEOS LOGIC ---
                 val similarVideosJob = async {
-                    // Placeholder: Using large videos logic for now
-                    val similarVideos = getLargeVideosUseCase() 
-                    val itemCount = similarVideos.size
+                    val allVideos = mediaRepository.getAllVideos()
+                    val similarVideoGroups = getSimilarVideoGroupsUseCase(allVideos)
+                    val itemCount = similarVideoGroups.sumOf { it.videos.size }
                     val thumbnails = if (itemCount > 0) {
-                        similarVideos.take(2).map { video ->
+                        val firstGroupVideos = similarVideoGroups.first().videos
+                        firstGroupVideos.take(2).map { video ->
                             async { mediaRepository.getThumbnailBitmap(video.id, isVideo = true) }
                         }.mapNotNull { it.await() }
                     } else {
@@ -129,7 +133,7 @@ class GetHomePageDataUseCase(
                         iconColor = Color.White,
                         thumbnails = thumbnails,
                         itemCount = itemCount,
-                        sizeInBytes = similarVideos.sumOf { it.sizeInBytes },
+                        sizeInBytes = similarVideoGroups.sumOf { group -> group.videos.sumOf { it.sizeInBytes } },
                         displayType = if (itemCount > 0) DisplayType.FULL_WIDTH_WITH_THUMBNAILS else DisplayType.SIMPLE_ROW
                     )
                 }
@@ -151,6 +155,7 @@ class GetHomePageDataUseCase(
                 }
 
                 val contactsJob = async {
+                    val duplicateContacts = getDuplicateContactsUseCase()
                     CleanupItem(
                         type = CleanupType.CONTACTS,
                         title = "通讯录清理",
@@ -158,7 +163,7 @@ class GetHomePageDataUseCase(
                         icon = Icons.SimilarImage,
                         iconColor = Color.White,
                         thumbnails = emptyList(),
-                        itemCount = 5, // Placeholder
+                        itemCount = duplicateContacts.sumOf { it.size },
                         sizeInBytes = 0,
                         displayType = DisplayType.GRID
                     )

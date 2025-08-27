@@ -2,6 +2,7 @@ package com.hjcoding.kmpcleaner.platform
 
 import android.content.ContentUris
 import android.content.Context
+import android.media.MediaMetadataRetriever
 import android.provider.MediaStore
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -242,5 +243,25 @@ class AndroidMediaScanner(private val context: Context) : MediaScanner {
         } catch (e: Exception) {
             completion(false)
         }
+    }
+
+    override fun getKeyFrames(forVideoId: String, completion: (List<ImageBitmap?>) -> Unit) {
+        val retriever = MediaMetadataRetriever()
+        val uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, forVideoId.toLong())
+        retriever.setDataSource(context, uri)
+
+        val durationString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+        val duration = durationString?.toLongOrNull() ?: 0L
+
+        val keyFrames = mutableListOf<ImageBitmap?>()
+        // Extract 5 key frames, for example
+        for (i in 0..4) {
+            val timeUs = (duration * 1000 * i / 4)
+            val frame = retriever.getFrameAtTime(timeUs, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+            keyFrames.add(frame?.asImageBitmap())
+        }
+
+        retriever.release()
+        completion(keyFrames)
     }
 }
