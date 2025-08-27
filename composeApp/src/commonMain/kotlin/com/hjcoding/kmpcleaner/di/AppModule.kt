@@ -44,14 +44,20 @@ val appModule = module {
         getLargeVideosUseCase = get(),
         getScreenshotsUseCase = get(),
         getSimilarVideoGroupsUseCase = get(),
-        getDuplicateContactsUseCase = get()
-    ) } bind GetHomePageDataUseCase::class
-    single { GetSimilarPhotoGroupsUseCase(mediaRepository = get())} bind GetSimilarPhotoGroupsUseCase::class
-    single { GetLargeVideosUseCase(mediaRepository = get()) } bind GetLargeVideosUseCase::class
-    single { GetScreenshotsUseCase(mediaRepository = get()) } bind GetScreenshotsUseCase::class
-    single { DeletePhotosUseCase(mediaRepository = get()) } bind DeletePhotosUseCase::class
-    single { DeleteVideosUseCase(mediaRepository = get()) } bind DeleteVideosUseCase::class
-    single { GetSimilarVideoGroupsUseCase(mediaRepository = get()) } bind GetSimilarVideoGroupsUseCase::class
+        getDuplicateContactsUseCase = get(),
+        getInvalidContactsUseCase = get(),
+        getPastCalendarEventsUseCase = get()) }
+    single { GetSimilarPhotoGroupsUseCase(mediaRepository = get())}
+    single { GetLargeVideosUseCase(mediaRepository = get()) }
+    single { GetScreenshotsUseCase(mediaRepository = get()) }
+    single { GetSimilarVideoGroupsUseCase(mediaRepository = get()) }
+    single { GetDuplicateContactsUseCase(contactsScanner = get()) }
+    single { GetInvalidContactsUseCase(contactsScanner = get()) }
+    single { GetPastCalendarEventsUseCase(calendarScanner = get()) }
+
+    single { DeletePhotosUseCase(mediaRepository = get()) }
+    single { DeleteVideosUseCase(mediaRepository = get()) }
+
     single { GetContactsUseCase() }
     single { DeleteContactsUseCase() }
     single { GetCalendarEventsUseCase() }

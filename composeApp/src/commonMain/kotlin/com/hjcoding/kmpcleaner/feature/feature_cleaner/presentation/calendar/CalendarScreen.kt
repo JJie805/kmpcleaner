@@ -91,9 +91,9 @@ private fun CalendarEventItem(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(text = event.title, style = MaterialTheme.typography.bodyLarge)
-            val startTime = Instant.fromEpochMilliseconds(event.startTime)
+            val startTime = Instant.fromEpochMilliseconds(event.startDate)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
-            val endTime = Instant.fromEpochMilliseconds(event.endTime)
+            val endTime = Instant.fromEpochMilliseconds(event.endDate)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
             val formattedStartTime = "${startTime.year}-${startTime.month.number.toString().padStart(2, '0')}-${startTime.day.toString().padStart(2, '0')} ${startTime.hour.toString().padStart(2, '0')}:${startTime.minute.toString().padStart(2, '0')}"
             val formattedEndTime = "${endTime.hour.toString().padStart(2, '0')}:${endTime.minute.toString().padStart(2, '0')}"
