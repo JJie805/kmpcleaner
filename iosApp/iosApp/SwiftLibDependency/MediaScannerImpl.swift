@@ -130,14 +130,19 @@ class MediaScannerImpl: ComposeApp.MediaScanner {
             guard durationInSeconds > 0 else { return [] }
             
             let times = (0..<5).map {
-                NSValue(time: CMTime(seconds: durationInSeconds * Double($0) / 4.0, preferredTimescale: 600))
+                CMTime(seconds: durationInSeconds * Double($0) / 4.0, preferredTimescale: 600)
             }
             
             for try await result in imageGenerator.images(for: times) {
-                let uiImage = UIImage(cgImage: result.image)
-                let resizedImage = self.resizeUIImage(uiImage, targetSize: CGSize(width: 9, height: 8))
-                if let bitmap = self.uiImageToImageBitmap(resizedImage) {
-                    keyFrames.append(bitmap)
+                do {
+                    let cgImage = try result.image
+                    let uiImage = UIImage(cgImage: cgImage)
+                    let resizedImage = self.resizeUIImage(uiImage, targetSize: CGSize(width: 9, height: 8))
+                    if let bitmap = self.uiImageToImageBitmap(resizedImage) {
+                        keyFrames.append(bitmap)
+                    }
+                } catch {
+                    print("Could not generate image for a specific time: \(error)")
                 }
             }
         } catch {
