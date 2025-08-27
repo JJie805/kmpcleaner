@@ -2,10 +2,42 @@ package com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case
 
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Contact
 import com.hjcoding.kmpcleaner.platform.ContactsScanner
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 class GetDuplicateContactsUseCase(private val contactsScanner: ContactsScanner) {
 
     suspend operator fun invoke(): List<List<Contact>> {
-        return emptyList()
+        val contacts = suspendCancellableCoroutine<List<Contact>> { continuation ->
+            contactsScanner.getContacts { result ->
+                continuation.resume(result)
+            }
+        }
+        
+        val duplicates = mutableListOf<List<Contact>>()
+        val visited = mutableSetOf<String>()
+
+        for (contact in contacts) {
+            if (visited.contains(contact.id)) continue
+
+            val currentGroup = mutableListOf(contact)
+            for (otherContact in contacts) {
+                if (contact.id == otherContact.id || visited.contains(otherContact.id)) continue
+
+                if (contact.name.isNotBlank() && contact.name == otherContact.name) {
+                    val phoneIntersection = contact.phoneNumbers.intersect(otherContact.phoneNumbers.toSet())
+                    if (phoneIntersection.isNotEmpty()) {
+                        currentGroup.add(otherContact)
+                    }
+                }
+            }
+
+            if (currentGroup.size > 1) {
+                duplicates.add(currentGroup)
+                visited.addAll(currentGroup.map { it.id })
+            }
+        }
+
+        return duplicates
     }
 }

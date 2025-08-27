@@ -46,6 +46,7 @@ internal actual val platformModule: Module = module {
     single { AndroidConnectivityObserver(this.get())} bind ConnectivityObserver::class
     single { AndroidMediaScanner(context = get()) } bind MediaScanner::class
     single { AndroidContactsScanner(context = get()) } bind ContactsScanner::class
+    single { AndroidCalendarScanner(context = get()) } bind CalendarScanner::class
     //createdAtStart = true这样 Koin 在执行完 startKoin { ... modules(platformModule) } 后，马上就去构造,
     // 否则koin默认是懒加载的，会错过registerActivityLifecycleCallbacks时机
     single<ActivityProvider>(createdAtStart = true) { RealActivityProvider(get()) } bind ActivityProvider::class

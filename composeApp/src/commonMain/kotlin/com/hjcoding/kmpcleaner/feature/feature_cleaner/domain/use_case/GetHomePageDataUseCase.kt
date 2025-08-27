@@ -5,7 +5,13 @@ import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarScreenshot
 import com.hjcoding.kmpcleaner.core.designsystem.icons.Video
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.StorageUsage
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRespository
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetDuplicateContactsUseCase
+import androidx.compose.ui.graphics.Color
+import com.hjcoding.kmpcleaner.core.designsystem.icons.Icons
+import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarImage
+import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarScreenshot
+import com.hjcoding.kmpcleaner.core.designsystem.icons.Video
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.StorageUsage
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRespository
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetLargeVideosUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetScreenshotsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarPhotoGroupsUseCase
@@ -27,7 +33,8 @@ class GetHomePageDataUseCase(
     private val getLargeVideosUseCase: GetLargeVideosUseCase,
     private val getScreenshotsUseCase: GetScreenshotsUseCase,
     private val getSimilarVideoGroupsUseCase: GetSimilarVideoGroupsUseCase,
-    private val getDuplicateContactsUseCase: GetDuplicateContactsUseCase
+    private val getDuplicateContactsUseCase: GetDuplicateContactsUseCase,
+    private val getInvalidContactsUseCase: GetInvalidContactsUseCase
 ) {
 
     suspend operator fun invoke(): Result<HomePageData> {
@@ -157,14 +164,16 @@ class GetHomePageDataUseCase(
 
                 val contactsJob = async {
                     val duplicateContacts = getDuplicateContactsUseCase()
+                    val invalidContacts = getInvalidContactsUseCase()
+                    val totalCount = duplicateContacts.sumOf { it.size } + invalidContacts.size
                     CleanupItem(
                         type = CleanupType.CONTACTS,
                         title = "通讯录清理",
-                        describe = "清理无效或重复的联系人",
+                        describe = "合并重复联系人、清理无效联系人",
                         icon = Icons.SimilarImage,
                         iconColor = Color.White,
                         thumbnails = emptyList(),
-                        itemCount = duplicateContacts.sumOf { it.size },
+                        itemCount = totalCount,
                         sizeInBytes = 0,
                         displayType = DisplayType.GRID
                     )
@@ -205,4 +214,3 @@ class GetHomePageDataUseCase(
         }
     }
 }
-
