@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,7 +45,7 @@ fun ProfileScreen(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("我的订阅", fontWeight = FontWeight.Bold) })
+            TopAppBar(title = { Text("我的", fontWeight = FontWeight.Bold) })
         },
         bottomBar = {
             BottomBar(
@@ -106,7 +105,11 @@ fun OtherSection(items: List<ProfileItem>) {
                         Icon(item.icon, contentDescription = null, modifier = Modifier.size(24.dp))
                         Spacer(modifier = Modifier.width(16.dp))
                         Text(item.name, modifier = Modifier.weight(1f))
-                        Icon(Icons.AutoMirrored.Filled.ArrowForwardIos, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.Gray)
+                        if (item.value != null) {
+                            Text(item.value, color = Color.Gray)
+                        } else {
+                            Icon(Icons.AutoMirrored.Filled.ArrowForwardIos, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.Gray)
+                        }
                     }
                     if (index < items.lastIndex) {
                         HorizontalDivider(
