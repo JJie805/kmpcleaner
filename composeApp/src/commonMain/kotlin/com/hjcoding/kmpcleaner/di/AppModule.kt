@@ -64,6 +64,7 @@ val appModule = module {
     single { DeleteContactsUseCase() }
     single { GetCalendarEventsUseCase() }
     single { DeleteCalendarEventsUseCase() }
+    single { GetDuplicatePastEventsUseCase(getPastCalendarEventsUseCase = get()) }
     single { GuestLoginUseCase(authRespository = get(), tokenManager = get()) }
 
     viewModelOf(::SplashViewModel)

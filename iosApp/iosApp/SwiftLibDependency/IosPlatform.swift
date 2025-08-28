@@ -23,7 +23,7 @@ class IosPlatform: NSObject, Platform {
         // Placeholder data
         // Assuming total memory is 8GB and used is around 3.5GB for plausible UI.
         let totalMemory: Int64 = 8 * 1024 * 1024 * 1024
-        let usedMemory: Int64 = 3.5 * 1024 * 1024 * 1024
+        let usedMemory: Int64 = Int64(3.5 * 1024 * 1024 * 1024)
         return MemoryUsage(used: usedMemory, total: totalMemory)
     }
 }

@@ -1,21 +1,19 @@
 package com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.contacts
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Contact
 import org.koin.compose.viewmodel.koinViewModel
-import androidx.compose.foundation.clickable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import com.hjcoding.kmpcleaner.ui.EmptyState
 
 @Composable
 fun ContactsScreenRoot(
@@ -55,7 +53,7 @@ fun ContactsScreen(
             } else if (uiState.error != null) {
                 Text("Error: ${uiState.error}")
             } else if (uiState.duplicateContactGroups.isEmpty() && uiState.invalidContacts.isEmpty()) {
-                EmptyState(message = "非常干净，没有发现可清理的联系人。")
+                Text(text = "非常干净，没有发现可清理的联系人。")
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),

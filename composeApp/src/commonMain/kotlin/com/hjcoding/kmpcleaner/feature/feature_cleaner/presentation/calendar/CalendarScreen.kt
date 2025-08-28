@@ -7,18 +7,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.CalendarEvent
-import org.koin.compose.viewmodel.koinViewModel
-import androidx.compose.foundation.clickable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import com.hjcoding.kmpcleaner.ui.EmptyState
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
+import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @Composable
 fun CalendarScreenRoot(
@@ -58,7 +55,7 @@ fun CalendarScreen(
             } else if (uiState.error != null) {
                 Text("Error: ${uiState.error}")
             } else if (uiState.duplicateEventGroups.isEmpty()) {
-                EmptyState(message = "非常干净，没有发现可清理的过期重复事件。")
+                Text(text = "非常干净，没有发现可清理的过期重复事件。")
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -74,6 +71,7 @@ fun CalendarScreen(
     }
 }
 
+@OptIn(ExperimentalTime::class)
 @Composable
 private fun DuplicateEventGroupItem(group: List<CalendarEvent>) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -82,7 +80,7 @@ private fun DuplicateEventGroupItem(group: List<CalendarEvent>) {
             Text(firstEvent.title, fontWeight = FontWeight.Bold)
             val startTime = Instant.fromEpochMilliseconds(firstEvent.startDate).toLocalDateTime(TimeZone.currentSystemDefault())
             val endTime = Instant.fromEpochMilliseconds(firstEvent.endDate).toLocalDateTime(TimeZone.currentSystemDefault())
-            val formattedStartTime = "${startTime.year}-${startTime.monthNumber.toString().padStart(2, '0')}-${startTime.dayOfMonth.toString().padStart(2, '0')} ${startTime.hour.toString().padStart(2, '0')}:${startTime.minute.toString().padStart(2, '0')}"
+            val formattedStartTime = "${startTime.year}-${startTime.month.number.toString().padStart(2, '0')}-${startTime.day.toString().padStart(2, '0')} ${startTime.hour.toString().padStart(2, '0')}:${startTime.minute.toString().padStart(2, '0')}"
             val formattedEndTime = "${endTime.hour.toString().padStart(2, '0')}:${endTime.minute.toString().padStart(2, '0')}"
             Text(text = "时间: $formattedStartTime - $formattedEndTime", style = MaterialTheme.typography.bodyMedium)
             Text("发现 ${group.size} 个重复项", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
