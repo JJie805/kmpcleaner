@@ -14,6 +14,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun ContactsScreenRoot(
@@ -39,7 +40,7 @@ fun ContactsScreen(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     onClick = { onAction(ContactsAction.DeleteSelected) }
                 ) {
-                    Text("Delete (${uiState.selectedContacts.size})")
+                    Text("Delete Selected (${uiState.selectedContacts.size})")
                 }
             }
         }
@@ -55,16 +56,47 @@ fun ContactsScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp)
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(uiState.contacts, key = { it.id }) { contact ->
-                        ContactItem(
-                            contact = contact,
-                            isSelected = uiState.selectedContacts.contains(contact.id),
-                            onToggleSelection = { onAction(ContactsAction.ToggleSelection(contact.id)) }
-                        )
+                    if (uiState.duplicateContactGroups.isNotEmpty()) {
+                        item {
+                            Text("重复联系人", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 8.dp))
+                        }
+                        items(uiState.duplicateContactGroups) { group ->
+                            DuplicateContactGroupItem(group)
+                        }
+                    }
+
+                    if (uiState.invalidContacts.isNotEmpty()) {
+                        item {
+                            Text("无效联系人", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
+                        }
+                        items(uiState.invalidContacts, key = { it.id }) { contact ->
+                            ContactItem(
+                                contact = contact,
+                                isSelected = uiState.selectedContacts.contains(contact.id),
+                                onToggleSelection = { onAction(ContactsAction.ToggleSelection(contact.id)) }
+                            )
+                        }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DuplicateContactGroupItem(group: List<Contact>) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(group.first().name, fontWeight = FontWeight.Bold)
+            group.forEach { contact ->
+                Text("  - ${contact.phoneNumbers.joinToString()}", style = MaterialTheme.typography.bodySmall)
+            }
+            Spacer(Modifier.height(8.dp))
+            Button(onClick = { /* TODO: Merge action */ }, modifier = Modifier.align(Alignment.End)) {
+                Text("合并")
             }
         }
     }
@@ -80,21 +112,23 @@ private fun ContactItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onToggleSelection() }
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = contact.name, style = MaterialTheme.typography.bodyLarge)
+            Text(text = contact.name.ifBlank { "(无姓名)" }, style = MaterialTheme.typography.bodyLarge)
             contact.phoneNumbers.forEach {
                 Text(text = it, style = MaterialTheme.typography.bodyMedium)
             }
-
+            contact.emails.forEach {
+                Text(text = it, style = MaterialTheme.typography.bodyMedium)
+            }
         }
         if (isSelected) {
             Icon(
                 imageVector = Icons.Default.CheckCircle,
                 contentDescription = "Selected",
-                tint = Color.Green,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = 16.dp)
             )
         }

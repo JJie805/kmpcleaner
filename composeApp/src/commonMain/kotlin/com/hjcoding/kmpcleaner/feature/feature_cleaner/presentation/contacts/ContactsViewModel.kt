@@ -3,14 +3,16 @@ package com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.contacts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.DeleteContactsUseCase
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetContactsUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetDuplicateContactsUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetInvalidContactsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ContactsViewModel(
-    private val getContactsUseCase: GetContactsUseCase,
+    private val getDuplicateContactsUseCase: GetDuplicateContactsUseCase,
+    private val getInvalidContactsUseCase: GetInvalidContactsUseCase,
     private val deleteContactsUseCase: DeleteContactsUseCase
 ) : ViewModel() {
 
@@ -37,8 +39,8 @@ class ContactsViewModel(
                 viewModelScope.launch {
                     val idsToDelete = _uiState.value.selectedContacts.toList()
                     deleteContactsUseCase(idsToDelete)
-                        .onSuccess {
-                            loadContacts()
+                        .onSuccess { 
+                            loadContacts() // Reload after deletion
                         }
                         .onFailure { error ->
                             _uiState.update {
@@ -54,11 +56,13 @@ class ContactsViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, selectedContacts = emptySet()) }
             try {
-                val contacts = getContactsUseCase()
+                val duplicateGroups = getDuplicateContactsUseCase()
+                val invalidContacts = getInvalidContactsUseCase()
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        contacts = contacts
+                        duplicateContactGroups = duplicateGroups,
+                        invalidContacts = invalidContacts
                     )
                 }
             } catch (e: Exception) {
