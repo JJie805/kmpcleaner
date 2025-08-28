@@ -14,11 +14,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import com.hjcoding.kmpcleaner.ui.EmptyState
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 @Composable
 fun CalendarScreenRoot(
@@ -44,7 +44,7 @@ fun CalendarScreen(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     onClick = { onAction(CalendarAction.DeleteSelected) }
                 ) {
-                    Text("Delete (${uiState.selectedEvents.size})")
+                    Text("Delete Selected (${uiState.selectedEvents.size})")
                 }
             }
         }
@@ -57,17 +57,16 @@ fun CalendarScreen(
                 CircularProgressIndicator()
             } else if (uiState.error != null) {
                 Text("Error: ${uiState.error}")
+            } else if (uiState.duplicateEventGroups.isEmpty()) {
+                EmptyState(message = "非常干净，没有发现可清理的过期重复事件。")
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp)
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(uiState.events, key = { it.id }) { event ->
-                        CalendarEventItem(
-                            event = event,
-                            isSelected = uiState.selectedEvents.contains(event.id),
-                            onToggleSelection = { onAction(CalendarAction.ToggleSelection(event.id)) }
-                        )
+                    items(uiState.duplicateEventGroups) { group ->
+                        DuplicateEventGroupItem(group)
                     }
                 }
             }
@@ -75,37 +74,22 @@ fun CalendarScreen(
     }
 }
 
-@OptIn(ExperimentalTime::class)
 @Composable
-private fun CalendarEventItem(
-    event: CalendarEvent,
-    isSelected: Boolean,
-    onToggleSelection: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onToggleSelection() }
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = event.title, style = MaterialTheme.typography.bodyLarge)
-            val startTime = Instant.fromEpochMilliseconds(event.startDate)
-                .toLocalDateTime(TimeZone.currentSystemDefault())
-            val endTime = Instant.fromEpochMilliseconds(event.endDate)
-                .toLocalDateTime(TimeZone.currentSystemDefault())
-            val formattedStartTime = "${startTime.year}-${startTime.month.number.toString().padStart(2, '0')}-${startTime.day.toString().padStart(2, '0')} ${startTime.hour.toString().padStart(2, '0')}:${startTime.minute.toString().padStart(2, '0')}"
+private fun DuplicateEventGroupItem(group: List<CalendarEvent>) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            val firstEvent = group.first()
+            Text(firstEvent.title, fontWeight = FontWeight.Bold)
+            val startTime = Instant.fromEpochMilliseconds(firstEvent.startDate).toLocalDateTime(TimeZone.currentSystemDefault())
+            val endTime = Instant.fromEpochMilliseconds(firstEvent.endDate).toLocalDateTime(TimeZone.currentSystemDefault())
+            val formattedStartTime = "${startTime.year}-${startTime.monthNumber.toString().padStart(2, '0')}-${startTime.dayOfMonth.toString().padStart(2, '0')} ${startTime.hour.toString().padStart(2, '0')}:${startTime.minute.toString().padStart(2, '0')}"
             val formattedEndTime = "${endTime.hour.toString().padStart(2, '0')}:${endTime.minute.toString().padStart(2, '0')}"
-            Text(text = "$formattedStartTime - $formattedEndTime", style = MaterialTheme.typography.bodyMedium)
-        }
-        if (isSelected) {
-            Icon(
-                imageVector = Icons.Default.CheckCircle,
-                contentDescription = "Selected",
-                tint = Color.Green,
-                modifier = Modifier.padding(start = 16.dp)
-            )
+            Text(text = "时间: $formattedStartTime - $formattedEndTime", style = MaterialTheme.typography.bodyMedium)
+            Text("发现 ${group.size} 个重复项", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(8.dp))
+            Button(onClick = { /* TODO: Merge/Delete action */ }, modifier = Modifier.align(Alignment.End)) {
+                Text("清理")
+            }
         }
     }
 }

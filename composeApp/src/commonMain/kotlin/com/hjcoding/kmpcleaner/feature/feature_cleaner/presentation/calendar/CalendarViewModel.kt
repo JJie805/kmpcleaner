@@ -3,14 +3,14 @@ package com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.DeleteCalendarEventsUseCase
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetPastCalendarEventsUseCase
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetDuplicatePastEventsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class CalendarViewModel(
-    private val getPastCalendarEventsUseCase: GetPastCalendarEventsUseCase,
+    private val getDuplicatePastEventsUseCase: GetDuplicatePastEventsUseCase,
     private val deleteCalendarEventsUseCase: DeleteCalendarEventsUseCase
 ) : ViewModel() {
 
@@ -18,7 +18,7 @@ class CalendarViewModel(
     val uiState = _uiState.asStateFlow()
 
     init {
-        loadCalendarEvents()
+        loadDuplicateEvents()
     }
 
     fun onAction(action: CalendarAction) {
@@ -38,7 +38,7 @@ class CalendarViewModel(
                     val idsToDelete = _uiState.value.selectedEvents.toList()
                     deleteCalendarEventsUseCase(idsToDelete)
                         .onSuccess {
-                            loadCalendarEvents()
+                            loadDuplicateEvents()
                         }
                         .onFailure { error ->
                             _uiState.update {
@@ -50,15 +50,15 @@ class CalendarViewModel(
         }
     }
 
-    private fun loadCalendarEvents() {
+    private fun loadDuplicateEvents() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, selectedEvents = emptySet()) }
             try {
-                val events = getPastCalendarEventsUseCase()
+                val duplicateGroups = getDuplicatePastEventsUseCase()
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        events = events
+                        duplicateEventGroups = duplicateGroups
                     )
                 }
             } catch (e: Exception) {

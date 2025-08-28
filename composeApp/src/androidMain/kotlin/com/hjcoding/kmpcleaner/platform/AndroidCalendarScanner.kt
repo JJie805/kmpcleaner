@@ -12,26 +12,49 @@ class AndroidCalendarScanner(private val context: Context) : CalendarScanner {
         val events = mutableListOf<CalendarEvent>()
         val contentResolver = context.contentResolver
 
-        val projection = arrayOf(
+        // First, get a list of writable calendar IDs
+        val writableCalendars = mutableListOf<String>()
+        val calendarProjection = arrayOf(CalendarContract.Calendars._ID)
+        val calendarSelection = "${CalendarContract.Calendars.CALENDAR_ACCESS_LEVEL} >= ${CalendarContract.Calendars.CAL_ACCESS_CONTRIBUTOR}"
+        val calendarCursor = contentResolver.query(
+            CalendarContract.Calendars.CONTENT_URI,
+            calendarProjection,
+            calendarSelection,
+            null,
+            null
+        )
+
+        calendarCursor?.use {
+            while (it.moveToNext()) {
+                writableCalendars.add(it.getString(it.getColumnIndex(CalendarContract.Calendars._ID)))
+            }
+        }
+
+        if (writableCalendars.isEmpty()) {
+            completion(emptyList())
+            return
+        }
+
+        // Now, query for events only in those writable calendars
+        val eventProjection = arrayOf(
             CalendarContract.Events._ID,
             CalendarContract.Events.TITLE,
             CalendarContract.Events.DTSTART,
             CalendarContract.Events.DTEND
         )
 
-        // Query for events that have already ended.
-        val selection = "${CalendarContract.Events.DTEND} < ?"
-        val selectionArgs = arrayOf(System.currentTimeMillis().toString())
+        val eventSelection = "${CalendarContract.Events.DTEND} < ? AND ${CalendarContract.Events.CALENDAR_ID} IN (${writableCalendars.joinToString(",")})
+        val eventSelectionArgs = arrayOf(System.currentTimeMillis().toString())
 
-        val cursor = contentResolver.query(
+        val eventCursor = contentResolver.query(
             CalendarContract.Events.CONTENT_URI,
-            projection,
-            selection,
-            selectionArgs,
+            eventProjection,
+            eventSelection,
+            eventSelectionArgs,
             null
         )
 
-        cursor?.use {
+        eventCursor?.use {
             while (it.moveToNext()) {
                 val id = it.getString(it.getColumnIndex(CalendarContract.Events._ID))
                 val title = it.getString(it.getColumnIndex(CalendarContract.Events.TITLE))

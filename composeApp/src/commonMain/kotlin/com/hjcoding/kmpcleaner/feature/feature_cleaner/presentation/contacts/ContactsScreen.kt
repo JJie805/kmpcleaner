@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import com.hjcoding.kmpcleaner.ui.EmptyState
 
 @Composable
 fun ContactsScreenRoot(
@@ -53,6 +54,8 @@ fun ContactsScreen(
                 CircularProgressIndicator()
             } else if (uiState.error != null) {
                 Text("Error: ${uiState.error}")
+            } else if (uiState.duplicateContactGroups.isEmpty() && uiState.invalidContacts.isEmpty()) {
+                EmptyState(message = "非常干净，没有发现可清理的联系人。")
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
