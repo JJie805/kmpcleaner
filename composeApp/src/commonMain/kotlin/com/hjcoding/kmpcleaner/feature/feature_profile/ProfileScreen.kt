@@ -93,6 +93,7 @@ fun SubscriptionCard() {
 
 @Composable
 fun OtherSection(items: List<ProfileItem>) {
+    print("items $items")
     Column {
         Text("其他", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 8.dp))
         Card(shape = RoundedCornerShape(16.dp)) {

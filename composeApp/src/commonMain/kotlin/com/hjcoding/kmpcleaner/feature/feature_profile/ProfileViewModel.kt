@@ -14,19 +14,19 @@ import kotlinx.coroutines.flow.stateIn
 
 class ProfileViewModel(platform: Platform) : ViewModel() {
 
-    private val _state = MutableStateFlow(ProfileState())
+    private val _state = MutableStateFlow(ProfileState(
+        profileItems = listOf(
+            ProfileItem("用户协议", Icons.Default.Book),
+            ProfileItem("隐私政策", Icons.Default.PrivacyTip),
+            ProfileItem("意见反馈", Icons.Default.Feedback),
+            ProfileItem("版本", Icons.Default.Info, value = platform.appVersionName)
+        )
+    ))
     val state = _state
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000L),
-            ProfileState(
-                profileItems = listOf(
-                    ProfileItem("用户协议", Icons.Default.Book),
-                    ProfileItem("隐私政策", Icons.Default.PrivacyTip),
-                    ProfileItem("意见反馈", Icons.Default.Feedback),
-                    ProfileItem("版本", Icons.Default.Info, value = platform.appVersionName)
-                )
-            )
+            _state.value
         )
 
     fun onAction(action: ProfileAction) {
