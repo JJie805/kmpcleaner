@@ -14,6 +14,7 @@ interface MediaScanner {
 
     // 【新增】按需获取位图的新方法
     fun getThumbnailBitmap(forId: String, isVideo: Boolean, completion: (ImageBitmap?) -> Unit)
+    fun getThumbnailData(forId: String, isVideo: Boolean, completion: (ByteArray?) -> Unit)
 
     fun getAhashBitmap(forId: String, completion: (ImageBitmap?) -> Unit)
 

@@ -1,11 +1,81 @@
 import Foundation
 import Photos
 import Contacts
-import ComposeApp // Ensure this is the correct name for your KMP module
+import ComposeApp
 import UIKit
 
 class MediaScannerImpl: ComposeApp.MediaScanner {
+    /**
+     * 这是现代的、基于 async/await 的核心实现。
+     * 它被设为 private，作为内部使用的、代码更清晰的底层函数。
+     * 它封装了从 PHImageManager 获取图片数据的完整异步逻辑。
+     */
+        func fetchThumbnailData(forId id: String, isVideo: Bool) async -> KotlinByteArray? {
+        // 使用 withCheckedContinuation 将旧的回调 API 桥接到现代的 async/await
+        return await withCheckedContinuation { continuation in
+            // 1. 根据 ID 获取 PHAsset 资源
+            let assets = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
+            guard let asset = assets.firstObject else {
+                // 如果找不到资源，创建一个显式类型的 nil 来恢复 continuation，以避免编译器错误
+                let result: KotlinByteArray? = nil
+                continuation.resume(returning: result)
+                return
+            }
 
+            // 2. 设置图片请求选项
+            let options = PHImageRequestOptions()
+            options.deliveryMode = .fastFormat // 快速获取，适合缩略图
+            options.isNetworkAccessAllowed = true // 允许从 iCloud 下载
+            options.version = .original // 直接获取原始数据，避免不必要的解码和重编码
+
+            // 3. 异步请求图片数据
+            PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
+                // 当图片数据准备好后，这个闭包会被调用
+
+                // 4. 处理数据为空的情况
+                guard let imageData = data else {
+                    // 同样，使用显式类型的 nil 来恢复 continuation
+                    let result: KotlinByteArray? = nil
+                    continuation.resume(returning: result)
+                    return
+                }
+                
+                // 5. 将 Swift 的 Data 类型转换为 KotlinByteArray
+                // 这是简单、可靠的内存复制操作，性能很高
+                let kotlinBytes = KotlinByteArray(size: Int32(imageData.count))
+                imageData.withUnsafeBytes { buffer in
+                    for (index, byte) in buffer.enumerated() {
+                        kotlinBytes.set(index: Int32(index), value: Int8(bitPattern: byte))
+                    }
+                }
+                
+                // 6. 成功获取并转换数据后，恢复 continuation 并返回结果
+                let result: KotlinByteArray? = kotlinBytes
+                continuation.resume(returning: result)
+            }
+        }
+    }
+
+    /**
+     * 这是暴露给 KMP 模块的、基于回调的公共接口。
+     * 它的函数签名与您的 KMP `interface` 完全匹配。
+     * 它的内部实现只是简单地调用了上面的 async/await 版本。
+     */
+    func getThumbnailData(forId id: String, isVideo: Bool, completion: @escaping (KotlinByteArray?) -> Void) {
+        // 创建一个 Task 来提供一个可以执行 async 函数的上下文环境
+        Task {
+            // 调用并等待上面那个 async 函数的结果
+            // `await` 会智能地暂停这里的执行，直到 `getThumbnailData` 返回结果
+            let result: KotlinByteArray? = await fetchThumbnailData(forId: id, isVideo: isVideo)
+            
+            // 为了线程安全，将回调派发到主线程执行，这是一个非常好的实践
+            DispatchQueue.main.async {
+                // 调用 KMP 传过来的 completion 闭包，将最终结果传递回去
+                completion(result)
+            }
+        }
+    }
+    
     // MARK: - Public API Implementation
 
     func getAllPhotos(completion: @escaping ([ComposeApp.PhotoEntity]) -> Void) {
@@ -49,6 +119,7 @@ class MediaScannerImpl: ComposeApp.MediaScanner {
     func getThumbnailBitmap(forId id: String, isVideo: Bool, completion: @escaping (Ui_graphicsImageBitmap?) -> Void) {
         fetchBitmap(forId: id, targetSize: CGSize(width: 400, height: 400), completion: completion)
     }
+    
 
     func getAhashBitmap(forId id: String, completion: @escaping (Ui_graphicsImageBitmap?) -> Void) {
         fetchBitmap(forId: id, targetSize: CGSize(width: 8, height: 8), completion: completion)

@@ -9,7 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.screenshots.AsyncPhotoView
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Photo
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.clickable
@@ -17,7 +16,10 @@ import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.SimilarPhotoGroup
+import org.koin.compose.koinInject
 
 @Composable
 fun SimilarScreenshotsScreenRoot(
@@ -117,9 +119,15 @@ private fun PhotoItem(
             .padding(4.dp)
             .clickable { onToggleSelection() }
     ) {
-        AsyncPhotoView(
-            photo = photo,
-            loadBitmap = loadBitmap
+        val imageLoader: coil3.ImageLoader = koinInject<coil3.ImageLoader>()
+        AsyncImage(
+            model = photo, // 直接把你的 Photo 对象传给 model
+            contentDescription = "Screenshot",
+            imageLoader = imageLoader, // 使用我们创建的 ImageLoader
+            modifier = Modifier.aspectRatio(1f),
+            contentScale = ContentScale.Crop, // 保证图片填充满
+            // Coil 会自动显示加载中和错误状态，但你也可以自定义
+            // placeholder = painterResource(R.drawable.placeholder),
         )
         if (isSelected) {
             Box(

@@ -5,28 +5,11 @@ import com.hjcoding.kmpcleaner.core.data.util.ConnectivityObserver
 import com.hjcoding.kmpcleaner.database.getDatabaseBuilder
 import com.hjcoding.kmpcleaner.datastore.createAndroidDataStore
 import com.hjcoding.kmpcleaner.platform.Analytics
-import com.hjcoding.kmpcleaner.platform.AndroidMediaScanner
-import com.hjcoding.kmpcleaner.platform.AndroidPlatform
-import com.hjcoding.kmpcleaner.platform.FirebaseAnalyticsImpl
-import com.hjcoding.kmpcleaner.platform.MediaScanner
-import com.hjcoding.kmpcleaner.platform.Platform
-import com.hjcoding.kmpcleaner.util.ActivityProvider
-import com.hjcoding.kmpcleaner.util.AndroidConnectivityObserver
-import com.hjcoding.kmpcleaner.util.RealActivityProvider
-import org.koin.core.module.Module
-import org.koin.dsl.bind
-import org.koin.dsl.module
-
-package com.hjcoding.kmpcleaner.di
-
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.hjcoding.kmpcleaner.core.data.util.ConnectivityObserver
-import com.hjcoding.kmpcleaner.database.getDatabaseBuilder
-import com.hjcoding.kmpcleaner.datastore.createAndroidDataStore
-import com.hjcoding.kmpcleaner.platform.Analytics
+import com.hjcoding.kmpcleaner.platform.AndroidCalendarScanner
 import com.hjcoding.kmpcleaner.platform.AndroidContactsScanner
 import com.hjcoding.kmpcleaner.platform.AndroidMediaScanner
 import com.hjcoding.kmpcleaner.platform.AndroidPlatform
+import com.hjcoding.kmpcleaner.platform.CalendarScanner
 import com.hjcoding.kmpcleaner.platform.ContactsScanner
 import com.hjcoding.kmpcleaner.platform.FirebaseAnalyticsImpl
 import com.hjcoding.kmpcleaner.platform.MediaScanner

@@ -79,6 +79,20 @@ class MediaRespositoryImpl(private val mediaScanner : MediaScanner,
         }
     }
 
+    override suspend fun getThumbnailData(
+        id: String,
+        isVideo: Boolean
+    ): ByteArray? {
+        return withContext(Dispatchers.IO) {
+            suspendCancellableCoroutine { continuation ->
+                mediaScanner.getThumbnailData(forId = id, isVideo = isVideo) { byteArray ->
+                    continuation.resume(byteArray) { cause, value, context -> }
+                }
+            }
+
+        }
+    }
+
     override suspend fun getAhashBitmap(id: String): ImageBitmap? {
         return withContext(Dispatchers.IO) {
             suspendCancellableCoroutine { continuation ->

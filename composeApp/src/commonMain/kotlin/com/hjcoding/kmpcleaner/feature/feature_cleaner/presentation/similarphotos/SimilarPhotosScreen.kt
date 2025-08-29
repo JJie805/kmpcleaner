@@ -13,22 +13,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Photo
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.SimilarPhotoGroup
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.screenshots.AsyncPhotoView
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SimilarPhotosScreenRoot(
-    viewModel: SimilarPhotosViewModel = koinViewModel()
+    viewModel: SimilarPhotosViewModel = koinViewModel(),
+    imageLoader: coil3.ImageLoader = koinInject<coil3.ImageLoader>(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     SimilarPhotosScreen(
         uiState = uiState,
         onAction = viewModel::onAction,
-        loadBitmap = { photo -> viewModel.loadBitmap(photo) }
+        imageLoader = imageLoader
     )
 }
 
@@ -36,7 +39,7 @@ fun SimilarPhotosScreenRoot(
 fun SimilarPhotosScreen(
     uiState: SimilarPhotosUiState,
     onAction: (SimilarPhotosAction) -> Unit,
-    loadBitmap: suspend (Photo) -> androidx.compose.ui.graphics.ImageBitmap?
+    imageLoader: coil3.ImageLoader
 ) {
     Scaffold(
         bottomBar = {
@@ -68,7 +71,7 @@ fun SimilarPhotosScreen(
                             group = group,
                             selectedPhotos = uiState.selectedPhotos,
                             onAction = onAction,
-                            loadBitmap = loadBitmap
+                            imageLoader = imageLoader
                         )
                     }
                 }
@@ -82,7 +85,7 @@ private fun PhotoGroupItem(
     group: SimilarPhotoGroup,
     selectedPhotos: Set<String>,
     onAction: (SimilarPhotosAction) -> Unit,
-    loadBitmap: suspend (Photo) -> androidx.compose.ui.graphics.ImageBitmap?
+    imageLoader: coil3.ImageLoader
 ) {
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         Text(
@@ -98,7 +101,7 @@ private fun PhotoGroupItem(
                     photo = photo,
                     isSelected = selectedPhotos.contains(photo.id),
                     onToggleSelection = { onAction(SimilarPhotosAction.ToggleSelection(photo.id)) },
-                    loadBitmap = loadBitmap
+                    imageLoader = imageLoader
                 )
             }
         }
@@ -110,16 +113,21 @@ private fun PhotoItem(
     photo: Photo,
     isSelected: Boolean,
     onToggleSelection: () -> Unit,
-    loadBitmap: suspend (Photo) -> androidx.compose.ui.graphics.ImageBitmap?
+    imageLoader: coil3.ImageLoader
 ) {
     Box(
         modifier = Modifier
             .padding(4.dp)
             .clickable { onToggleSelection() }
     ) {
-        AsyncPhotoView(
-            photo = photo,
-            loadBitmap = loadBitmap
+        AsyncImage(
+            model = photo, // 直接把你的 Photo 对象传给 model
+            contentDescription = "Screenshot",
+            imageLoader = imageLoader, // 使用我们创建的 ImageLoader
+            modifier = Modifier.aspectRatio(1f),
+            contentScale = ContentScale.Crop, // 保证图片填充满
+            // Coil 会自动显示加载中和错误状态，但你也可以自定义
+            // placeholder = painterResource(R.drawable.placeholder),
         )
         if (isSelected) {
             Box(

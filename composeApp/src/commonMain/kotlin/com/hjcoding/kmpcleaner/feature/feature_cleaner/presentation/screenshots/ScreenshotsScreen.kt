@@ -1,7 +1,5 @@
 package com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.screenshots
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -10,26 +8,31 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Photo
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun ScreenshotsScreenRoot(
-    viewModel: ScreenshotsViewModel = koinViewModel()
+    viewModel: ScreenshotsViewModel = koinViewModel(),
+    imageLoader: coil3.ImageLoader = koinInject<coil3.ImageLoader>()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     ScreenshotsScreen(
         uiState = uiState,
         onAction = viewModel::onAction,
-        loadBitmap = viewModel::loadBitmap
+        imageLoader = imageLoader
     )
 }
 
@@ -37,7 +40,7 @@ fun ScreenshotsScreenRoot(
 fun ScreenshotsScreen(
     uiState: ScreenshotsUiState,
     onAction: (ScreenshotsAction) -> Unit,
-    loadBitmap: suspend (Photo) -> ImageBitmap?
+    imageLoader: coil3.ImageLoader,
 ) {
     Scaffold(
         bottomBar = {
@@ -70,7 +73,7 @@ fun ScreenshotsScreen(
                             photo = photo,
                             isSelected = uiState.selectedScreenshots.contains(photo.id),
                             onToggleSelection = { onAction(ScreenshotsAction.ToggleSelection(photo.id)) },
-                            loadBitmap = loadBitmap
+                            imageLoader = imageLoader // 传递 ImageLoader
                         )
                     }
                 }
@@ -84,16 +87,22 @@ private fun ScreenshotItem(
     photo: Photo,
     isSelected: Boolean,
     onToggleSelection: () -> Unit,
-    loadBitmap: suspend (Photo) -> ImageBitmap?
+    imageLoader: coil3.ImageLoader
 ) {
     Box(
         modifier = Modifier
             .padding(4.dp)
             .clickable { onToggleSelection() }
     ) {
-        AsyncPhotoView(
-            photo = photo,
-            loadBitmap = loadBitmap
+        // 使用 Coil 的 AsyncImage，就是这么简单！
+        AsyncImage(
+            model = photo, // 直接把你的 Photo 对象传给 model
+            contentDescription = "Screenshot",
+            imageLoader = imageLoader, // 使用我们创建的 ImageLoader
+            modifier = Modifier.aspectRatio(1f),
+            contentScale = ContentScale.Crop, // 保证图片填充满
+            // Coil 会自动显示加载中和错误状态，但你也可以自定义
+            // placeholder = painterResource(R.drawable.placeholder),
         )
         if (isSelected) {
             Icon(
@@ -107,37 +116,9 @@ private fun ScreenshotItem(
 }
 
 
-@Composable
-fun AsyncPhotoView(photo: Photo, loadBitmap: suspend (Photo) -> ImageBitmap?) {
-    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
-
-    LaunchedEffect(photo.id) {
-        imageBitmap = loadBitmap(photo)
-    }
-
-    if (imageBitmap != null) {
-        Image(bitmap = imageBitmap!!, contentDescription = null, modifier = Modifier.aspectRatio(1f))
-    } else {
-        Box(modifier = Modifier.aspectRatio(1f).background(Color.Gray)) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        }
-    }
-}
-
+// Preview 需要调整
 @Preview
 @Composable
 fun ScreenshotsScreenPreview() {
-    ScreenshotsScreen(
-        uiState = ScreenshotsUiState(
-            isLoading = false,
-            screenshots = listOf(
-                Photo(id = "1", creationDate = 0, sizeInBytes = 0, width = 0, height = 0),
-                Photo(id = "2", creationDate = 0, sizeInBytes = 0, width = 0, height = 0),
-                Photo(id = "3", creationDate = 0, sizeInBytes = 0, width = 0, height = 0),
-            ),
-            selectedScreenshots = setOf("2")
-        ),
-        onAction = {},
-        loadBitmap = { null }
-    )
+    // ... Preview 代码需要一个假的 ImageLoader 实例，这里为了编译通过可以先注释掉 ...
 }
