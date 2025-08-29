@@ -40,6 +40,9 @@ val appModule = module {
             // Koin 会在这里暂停，去寻找一个能提供 PlatformContext 的配方
             context = get<PlatformContext>()
         ).apply {
+            components {
+                add(get<PhotoFetcherFactory>())
+            }
             // ... Coil 的其他配置，如内存缓存、磁盘缓存等 ...
             memoryCache { MemoryCache.Builder().maxSizePercent(get(), 0.25).build() }
 
