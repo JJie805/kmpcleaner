@@ -11,47 +11,33 @@ class MediaScannerImpl: ComposeApp.MediaScanner {
      * 它封装了从 PHImageManager 获取图片数据的完整异步逻辑。
      */
         func fetchThumbnailData(forId id: String, isVideo: Bool) async -> KotlinByteArray? {
-        // 使用 withCheckedContinuation 将旧的回调 API 桥接到现代的 async/await
         return await withCheckedContinuation { continuation in
-            // 1. 根据 ID 获取 PHAsset 资源
             let assets = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
             guard let asset = assets.firstObject else {
-                // 如果找不到资源，创建一个显式类型的 nil 来恢复 continuation，以避免编译器错误
-                let result: KotlinByteArray? = nil
-                continuation.resume(returning: result)
+                continuation.resume(returning: nil)
                 return
             }
 
-            // 2. 设置图片请求选项
             let options = PHImageRequestOptions()
-            options.deliveryMode = .fastFormat // 快速获取，适合缩略图
-            options.isNetworkAccessAllowed = true // 允许从 iCloud 下载
-            options.version = .original // 直接获取原始数据，避免不必要的解码和重编码
+            options.resizeMode = .fast // Request a fast-resized image
+            options.deliveryMode = .opportunistic // Get a lower-quality image quickly
+            options.isNetworkAccessAllowed = true
 
-            // 3. 异步请求图片数据
-            PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
-                // 当图片数据准备好后，这个闭包会被调用
+            // Define a thumbnail size
+            let targetSize = CGSize(width: 256, height: 256)
 
-                // 4. 处理数据为空的情况
-                guard let imageData = data else {
-                    // 同样，使用显式类型的 nil 来恢复 continuation
-                    let result: KotlinByteArray? = nil
-                    continuation.resume(returning: result)
+            // Use requestImage to get a UIImage thumbnail
+            PHImageManager.default().requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: options) { image, _ in
+                guard let image = image,
+                      // Convert the resulting UIImage to JPEG data
+                      let data = image.jpegData(compressionQuality: 0.8) else {
+                    continuation.resume(returning: nil)
                     return
                 }
-                
-                // 5. 将 Swift 的 Data 类型转换为 KotlinByteArray
-                // 这是简单、可靠的内存复制操作，性能很高
-                let kotlinBytes = KotlinByteArray(size: Int32(imageData.count))
-                imageData.withUnsafeBytes { buffer in
-                    for (index, byte) in buffer.enumerated() {
-                        kotlinBytes.set(index: Int32(index), value: Int8(bitPattern: byte))
-                    }
-                }
-                
-                // 6. 成功获取并转换数据后，恢复 continuation 并返回结果
-                let result: KotlinByteArray? = kotlinBytes
-                continuation.resume(returning: result)
+
+                // Convert Swift Data to KotlinByteArray
+                let kotlinBytes = data.toKotlinByteArray()
+                continuation.resume(returning: kotlinBytes)
             }
         }
     }
