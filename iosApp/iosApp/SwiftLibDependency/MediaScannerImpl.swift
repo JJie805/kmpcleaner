@@ -37,8 +37,13 @@ class MediaScannerImpl: ComposeApp.MediaScanner {
                     return
                 }
 
-                // Convert Swift Data to KotlinByteArray
-                let kotlinBytes = data.toKotlinByteArray()
+                // Convert Swift Data to KotlinByteArray manually
+                let kotlinBytes = KotlinByteArray(size: Int32(data.count))
+                data.withUnsafeBytes { buffer in
+                    for (index, byte) in buffer.enumerated() {
+                        kotlinBytes.set(index: Int32(index), value: Int8(bitPattern: byte))
+                    }
+                }
                 continuation.resume(returning: kotlinBytes)
             }
         }
