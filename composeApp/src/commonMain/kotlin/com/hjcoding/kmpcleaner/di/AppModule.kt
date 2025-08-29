@@ -2,6 +2,8 @@ package com.hjcoding.kmpcleaner.di
 
 import GetHomePageDataUseCase
 import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.memory.MemoryCache
 import com.hjcoding.kmpcleaner.core.data.local.preferences.UserPreferences
 import com.hjcoding.kmpcleaner.core.network.ktor.HttpClientBuilder
 import com.hjcoding.kmpcleaner.feature.feature_auth.data.AuthDataSourceImpl
@@ -26,7 +28,6 @@ import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarvideo
 import com.hjcoding.kmpcleaner.feature.feature_profile.ProfileViewModel
 import com.hjcoding.kmpcleaner.feature.feature_toolbox.domain.use_case.GetSystemInfoUseCase
 import com.hjcoding.kmpcleaner.feature.feature_toolbox.presentation.ToolboxViewModel
-import com.hjcoding.kmpcleaner.platform.PhotoFetcherFactory
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -35,13 +36,14 @@ import org.koin.dsl.module
 val appModule = module {
 
     single {
-        ImageLoader.Builder(get())
-            .components {
-                // 现在添加的是 PhotoFetcherFactory
-                add(get<PhotoFetcherFactory>())
-            }
-            // ... cache config
-            .build()
+        ImageLoader.Builder(
+            // Koin 会在这里暂停，去寻找一个能提供 PlatformContext 的配方
+            context = get<PlatformContext>()
+        ).apply {
+            // ... Coil 的其他配置，如内存缓存、磁盘缓存等 ...
+            memoryCache { MemoryCache.Builder().maxSizePercent(get(), 0.25).build() }
+
+        }.build()
     }
     single { TokenManager(userPreferences = get()) }
     single { HttpClientBuilder(tokenManager = get()).client}
@@ -50,7 +52,9 @@ val appModule = module {
     single { AuthRespositoryImpl(authDataSource = get()) } bind AuthRespository::class
 
     single {
-        MediaRespositoryImpl(mediaScanner = get(), contactsScanner = get(), deviceStorageSource = get()) } bind MediaRespository::class
+        MediaRespositoryImpl(mediaScanner = get(),
+            contactsScanner = get(),
+            deviceStorageSource = get()) } bind MediaRespository::class
     single { GetHomePageDataUseCase(
         mediaRepository = get(),
         getSimilarPhotoGroupsUseCase = get(),

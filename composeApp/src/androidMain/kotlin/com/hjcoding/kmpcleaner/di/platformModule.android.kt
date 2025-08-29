@@ -1,5 +1,7 @@
 package com.hjcoding.kmpcleaner.di
 
+import android.content.Context
+import coil3.PlatformContext
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.hjcoding.kmpcleaner.core.data.util.ConnectivityObserver
 import com.hjcoding.kmpcleaner.database.getDatabaseBuilder
@@ -22,11 +24,12 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 
 internal actual val platformModule: Module = module {
+    single<PlatformContext> { get<Context>() }
     single { FirebaseAnalyticsImpl(firebaseAnalytics = FirebaseAnalytics.getInstance(this.get())) } bind Analytics::class
-    single { AndroidPlatform(this.get()) } bind Platform::class
-    single { getDatabaseBuilder(this.get()) }
-    single { createAndroidDataStore(this.get())}
-    single { AndroidConnectivityObserver(this.get())} bind ConnectivityObserver::class
+    single { AndroidPlatform(get()) } bind Platform::class
+    single { getDatabaseBuilder(get()) }
+    single { createAndroidDataStore(get())}
+    single { AndroidConnectivityObserver(get())} bind ConnectivityObserver::class
     single { AndroidMediaScanner(context = get()) } bind MediaScanner::class
     single { AndroidContactsScanner(context = get()) } bind ContactsScanner::class
     single { AndroidCalendarScanner(context = get()) } bind CalendarScanner::class
