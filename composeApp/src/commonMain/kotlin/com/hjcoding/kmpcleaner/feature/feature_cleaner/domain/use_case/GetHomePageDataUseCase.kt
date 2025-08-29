@@ -5,13 +5,6 @@ import com.hjcoding.kmpcleaner.core.designsystem.icons.SimilarScreenshot
 import com.hjcoding.kmpcleaner.core.designsystem.icons.Video
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.StorageUsage
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.repository.MediaRespository
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetDuplicateContactsUseCase
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetInvalidContactsUseCase
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetLargeVideosUseCase
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetPastCalendarEventsUseCase
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetScreenshotsUseCase
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarPhotoGroupsUseCase
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetSimilarVideoGroupsUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupItem
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.CleanupType
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home.DisplayType
@@ -42,14 +35,7 @@ class GetHomePageDataUseCase(
                     val allPhotos = mediaRepository.getNonScreenshotPhotos()
                     val similarGroups = getSimilarPhotoGroupsUseCase(allPhotos)
                     val itemCount = similarGroups.sumOf { it.photos.size }
-                    val thumbnails = if (itemCount > 0) {
-                        val firstGroupPhotos = similarGroups.first().photos
-                        firstGroupPhotos.take(2).map { photo ->
-                            async { mediaRepository.getThumbnailBitmap(photo.id, isVideo = false) }
-                        }.mapNotNull { it.await() }
-                    } else {
-                        emptyList()
-                    }
+                    val mediaItems = similarGroups.firstOrNull()?.photos?.take(2) ?: emptyList()
 
                     CleanupItem(
                         type = CleanupType.SIMILAR_PHOTOS,
@@ -57,7 +43,7 @@ class GetHomePageDataUseCase(
                         describe = "建议清理相似的照片",
                         icon = Icons.SimilarImage,
                         iconColor = Color.White,
-                        thumbnails = thumbnails,
+                        mediaItems = mediaItems,
                         itemCount = itemCount,
                         sizeInBytes = similarGroups.sumOf { group -> group.photos.sumOf { it.sizeInBytes } },
                         displayType = if (itemCount > 0) DisplayType.FULL_WIDTH_WITH_THUMBNAILS else DisplayType.SIMPLE_ROW
@@ -69,14 +55,7 @@ class GetHomePageDataUseCase(
                     val allScreenshots = mediaRepository.getScreenshotPhotos()
                     val similarScreenshotGroups = getSimilarPhotoGroupsUseCase(allScreenshots)
                     val itemCount = similarScreenshotGroups.sumOf { it.photos.size }
-                    val thumbnails = if (itemCount > 0) {
-                        val firstGroupPhotos = similarScreenshotGroups.first().photos
-                        firstGroupPhotos.take(2).map { photo ->
-                            async { mediaRepository.getThumbnailBitmap(photo.id, isVideo = false) }
-                        }.mapNotNull { it.await() }
-                    } else {
-                        emptyList()
-                    }
+                    val mediaItems = similarScreenshotGroups.firstOrNull()?.photos?.take(2) ?: emptyList()
 
                     CleanupItem(
                         type = CleanupType.SIMILAR_SCREENSHOTS,
@@ -84,7 +63,7 @@ class GetHomePageDataUseCase(
                         describe = "查找并清理相似的屏幕截图",
                         icon = Icons.SimilarScreenshot,
                         iconColor = Color.White,
-                        thumbnails = thumbnails,
+                        mediaItems = mediaItems,
                         itemCount = itemCount,
                         sizeInBytes = similarScreenshotGroups.sumOf { group -> group.photos.sumOf { it.sizeInBytes } },
                         displayType = if (itemCount > 0) DisplayType.FULL_WIDTH_WITH_THUMBNAILS else DisplayType.SIMPLE_ROW
@@ -95,13 +74,7 @@ class GetHomePageDataUseCase(
                 val largeVideosJob = async {
                     val largeVideos = getLargeVideosUseCase()
                     val itemCount = largeVideos.size
-                    val thumbnails = if (itemCount > 0) {
-                        largeVideos.take(2).map { video ->
-                            async { mediaRepository.getThumbnailBitmap(video.id, isVideo = true) }
-                        }.mapNotNull { it.await() }
-                    } else {
-                        emptyList()
-                    }
+                    val mediaItems = largeVideos.take(2)
 
                     CleanupItem(
                         type = CleanupType.LARGE_VIDEOS,
@@ -109,7 +82,7 @@ class GetHomePageDataUseCase(
                         describe = "建议清理占用空间大的视频",
                         icon = Icons.Video,
                         iconColor = Color.White,
-                        thumbnails = thumbnails,
+                        mediaItems = mediaItems,
                         itemCount = itemCount,
                         sizeInBytes = largeVideos.sumOf { it.sizeInBytes },
                         displayType = if (itemCount > 0) DisplayType.FULL_WIDTH_WITH_THUMBNAILS else DisplayType.SIMPLE_ROW
@@ -121,14 +94,7 @@ class GetHomePageDataUseCase(
                     val allVideos = mediaRepository.getAllVideos()
                     val similarVideoGroups = getSimilarVideoGroupsUseCase(allVideos)
                     val itemCount = similarVideoGroups.sumOf { it.videos.size }
-                    val thumbnails = if (itemCount > 0) {
-                        val firstGroupVideos = similarVideoGroups.first().videos
-                        firstGroupVideos.take(2).map { video ->
-                            async { mediaRepository.getThumbnailBitmap(video.id, isVideo = true) }
-                        }.mapNotNull { it.await() }
-                    } else {
-                        emptyList()
-                    }
+                    val mediaItems = similarVideoGroups.firstOrNull()?.videos?.take(2) ?: emptyList()
                     
                     CleanupItem(
                         type = CleanupType.SIMILAR_VIDEOS,
@@ -136,7 +102,7 @@ class GetHomePageDataUseCase(
                         describe = "查找并清理相似的视频",
                         icon = Icons.Video,
                         iconColor = Color.White,
-                        thumbnails = thumbnails,
+                        mediaItems = mediaItems,
                         itemCount = itemCount,
                         sizeInBytes = similarVideoGroups.sumOf { group -> group.videos.sumOf { it.sizeInBytes } },
                         displayType = if (itemCount > 0) DisplayType.FULL_WIDTH_WITH_THUMBNAILS else DisplayType.SIMPLE_ROW
@@ -152,7 +118,7 @@ class GetHomePageDataUseCase(
                         describe = "清理所有屏幕截图",
                         icon = Icons.SimilarScreenshot,
                         iconColor = Color.White,
-                        thumbnails = emptyList(),
+                        mediaItems = emptyList(),
                         itemCount = allScreenshots.size,
                         sizeInBytes = allScreenshots.sumOf { it.sizeInBytes },
                         displayType = DisplayType.GRID
@@ -169,7 +135,7 @@ class GetHomePageDataUseCase(
                         describe = "合并重复联系人、清理无效联系人",
                         icon = Icons.SimilarImage,
                         iconColor = Color.White,
-                        thumbnails = emptyList(),
+                        mediaItems = emptyList(),
                         itemCount = totalCount,
                         sizeInBytes = 0,
                         displayType = DisplayType.GRID
@@ -184,7 +150,7 @@ class GetHomePageDataUseCase(
                         describe = "清理已过期的日历和提醒事项",
                         icon = Icons.SimilarImage,
                         iconColor = Color.White,
-                        thumbnails = emptyList(),
+                        mediaItems = emptyList(),
                         itemCount = pastEvents.size,
                         sizeInBytes = 0,
                         displayType = DisplayType.GRID
