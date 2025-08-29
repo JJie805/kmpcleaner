@@ -28,6 +28,7 @@ import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.similarvideo
 import com.hjcoding.kmpcleaner.feature.feature_profile.ProfileViewModel
 import com.hjcoding.kmpcleaner.feature.feature_toolbox.domain.use_case.GetSystemInfoUseCase
 import com.hjcoding.kmpcleaner.feature.feature_toolbox.presentation.ToolboxViewModel
+import com.hjcoding.kmpcleaner.platform.MediaFetcherFactory
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -41,7 +42,7 @@ val appModule = module {
             context = get<PlatformContext>()
         ).apply {
             components {
-                add(get<PhotoFetcherFactory>())
+                add(get<MediaFetcherFactory>())
             }
             // ... Coil 的其他配置，如内存缓存、磁盘缓存等 ...
             memoryCache { MemoryCache.Builder().maxSizePercent(get(), 0.25).build() }

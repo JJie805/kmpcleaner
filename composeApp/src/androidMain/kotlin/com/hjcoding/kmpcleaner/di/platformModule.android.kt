@@ -20,7 +20,7 @@ import com.hjcoding.kmpcleaner.util.ActivityProvider
 import com.hjcoding.kmpcleaner.util.AndroidConnectivityObserver
 import com.hjcoding.kmpcleaner.util.RealActivityProvider
 import org.koin.core.module.Module
-import com.hjcoding.kmpcleaner.platform.PhotoFetcherFactory
+import com.hjcoding.kmpcleaner.platform.MediaFetcherFactory
 import org.koin.dsl.bind
 import org.koin.dsl.module
 

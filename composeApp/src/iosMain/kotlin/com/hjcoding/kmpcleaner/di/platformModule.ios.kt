@@ -12,7 +12,7 @@ import org.koin.dsl.module
 
 // 这个模块现在是最终的、正确的版本
 internal actual val platformModule: Module = module {
-    single { PhotoFetcherFactory(get()) }
+    single { MediaFetcherFactory() }
     single { getDatabaseBuilder() }
     single { createIosDataStore() }
     single { IosConnectivityObserver() } bind ConnectivityObserver::class
@@ -24,4 +24,5 @@ internal actual val platformModule: Module = module {
     single<PlatformContext> {
         PlatformContext.INSTANCE
     }
+}  }
 }

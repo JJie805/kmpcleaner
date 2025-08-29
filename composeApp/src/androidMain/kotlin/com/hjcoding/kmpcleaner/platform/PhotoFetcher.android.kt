@@ -1,35 +1,39 @@
 package com.hjcoding.kmpcleaner.platform
 
 import android.content.ContentUris
+import android.graphics.Bitmap
+import android.os.Build
 import android.provider.MediaStore
-import coil3.ImageLoader
-import coil3.decode.DataSource
-import coil3.decode.ImageSource
-import coil3.fetch.FetchResult
-import coil3.fetch.Fetcher
-import coil3.fetch.SourceResult
-import coil3.request.Options
+import android.util.Size
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Media
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Photo
-import okio.source
+import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.model.Video
+import com.hjcoding.kmpcleaner.util.AppContext
+import java.io.ByteArrayOutputStream
 
-actual class PhotoFetcherFactory : Fetcher.Factory<Photo> {
-    override fun create(data: Photo, options: Options, imageLoader: ImageLoader): Fetcher {
-        return object : Fetcher {
-            override suspend fun fetch(): FetchResult {
-                val photoUri = ContentUris.withAppendedId(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    data.id.toLong()
-                )
-                val inputStream = options.androidContext.contentResolver.openInputStream(photoUri)!!
-                return SourceResult(
-                    source = ImageSource(
-                        source = inputStream.source(),
-                        fileSystem = options.fileSystem
-                    ),
-                    mimeType = "image/*",
-                    dataSource = DataSource.DISK
-                )
+actual fun getMediaThumbnailData(media: Media): ByteArray? {
+    val context = AppContext.get()
+    val id = media.id.toLong()
+    val uri = when (media) {
+        is Photo -> ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+        is Video -> ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id)
+    }
+
+    return try {
+        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            context.contentResolver.loadThumbnail(uri, Size(256, 256), null)
+        } else {
+            @Suppress("DEPRECATION")
+            when (media) {
+                is Photo -> MediaStore.Images.Thumbnails.getThumbnail(context.contentResolver, id, MediaStore.Images.Thumbnails.MINI_KIND, null)
+                is Video -> MediaStore.Video.Thumbnails.getThumbnail(context.contentResolver, id, MediaStore.Video.Thumbnails.MINI_KIND, null)
             }
         }
+        val stream = ByteArrayOutputStream()
+        bitmap?.compress(Bitmap.CompressFormat.JPEG, 80, stream)
+        stream.toByteArray()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
     }
 }

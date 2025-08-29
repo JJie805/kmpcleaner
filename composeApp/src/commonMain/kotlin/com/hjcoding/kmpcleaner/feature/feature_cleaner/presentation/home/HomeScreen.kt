@@ -166,9 +166,9 @@ fun CleanupThumbnailItem(item: CleanupItem, onClick: () -> Unit) {
             }
             Spacer(modifier = Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                item.thumbnails.forEach {
-                    Image(
-                        bitmap = it,
+                item.mediaItems.forEach {
+                    AsyncImage(
+                        model = it,
                         contentDescription = null,
                         modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(8.dp)),
                         contentScale = ContentScale.Crop
