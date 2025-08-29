@@ -14,7 +14,8 @@ class MediaScannerImpl: ComposeApp.MediaScanner {
         return await withCheckedContinuation { continuation in
             let assets = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
             guard let asset = assets.firstObject else {
-                continuation.resume(returning: nil)
+                let result: KotlinByteArray? = nil
+                continuation.resume(returning: result)
                 return
             }
 
@@ -31,7 +32,8 @@ class MediaScannerImpl: ComposeApp.MediaScanner {
                 guard let image = image,
                       // Convert the resulting UIImage to JPEG data
                       let data = image.jpegData(compressionQuality: 0.8) else {
-                    continuation.resume(returning: nil)
+                    let result: KotlinByteArray? = nil
+                    continuation.resume(returning: result)
                     return
                 }
 
