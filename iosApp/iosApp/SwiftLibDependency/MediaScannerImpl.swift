@@ -12,6 +12,8 @@ class MediaScannerImpl: ComposeApp.MediaScanner {
      */
         func fetchThumbnailData(forId id: String, isVideo: Bool) async -> KotlinByteArray? {
         return await withCheckedContinuation { continuation in
+            var isResumed = false // 1. Add a flag to prevent multiple resumes
+
             let assets = PHAsset.fetchAssets(withLocalIdentifiers: [id], options: nil)
             guard let asset = assets.firstObject else {
                 let result: KotlinByteArray? = nil
@@ -20,31 +22,32 @@ class MediaScannerImpl: ComposeApp.MediaScanner {
             }
 
             let options = PHImageRequestOptions()
-            options.resizeMode = .fast // Request a fast-resized image
-            options.deliveryMode = .opportunistic // Get a lower-quality image quickly
+            options.resizeMode = .fast
+            options.deliveryMode = .opportunistic
             options.isNetworkAccessAllowed = true
 
-            // Define a thumbnail size
             let targetSize = CGSize(width: 256, height: 256)
 
-            // Use requestImage to get a UIImage thumbnail
             PHImageManager.default().requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: options) { image, _ in
-                guard let image = image,
-                      // Convert the resulting UIImage to JPEG data
-                      let data = image.jpegData(compressionQuality: 0.8) else {
-                    let result: KotlinByteArray? = nil
-                    continuation.resume(returning: result)
-                    return
-                }
-
-                // Convert Swift Data to KotlinByteArray manually
-                let kotlinBytes = KotlinByteArray(size: Int32(data.count))
-                data.withUnsafeBytes { buffer in
-                    for (index, byte) in buffer.enumerated() {
-                        kotlinBytes.set(index: Int32(index), value: Int8(bitPattern: byte))
+                // 2. Check the flag before doing anything
+                if !isResumed {
+                    guard let image = image,
+                          let data = image.jpegData(compressionQuality: 0.8) else {
+                        isResumed = true // 3. Set flag even on failure
+                        let result: KotlinByteArray? = nil
+                        continuation.resume(returning: result)
+                        return
                     }
+
+                    isResumed = true // 4. Set flag on success
+                    let kotlinBytes = KotlinByteArray(size: Int32(data.count))
+                    data.withUnsafeBytes { buffer in
+                        for (index, byte) in buffer.enumerated() {
+                            kotlinBytes.set(index: Int32(index), value: Int8(bitPattern: byte))
+                        }
+                    }
+                    continuation.resume(returning: kotlinBytes)
                 }
-                continuation.resume(returning: kotlinBytes)
             }
         }
     }
