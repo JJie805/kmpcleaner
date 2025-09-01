@@ -23,10 +23,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import com.hjcoding.kmpcleaner.core.designsystem.components.BottomBar
 import com.hjcoding.kmpcleaner.core.designsystem.components.BottomNavItem
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.model.StorageInfo
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -34,7 +36,8 @@ fun HomeScreenRoot(
     currentDestination: NavDestination? = null,
     onClickBottomItem: ((BottomNavItem) -> Unit)? = null,
     onClickCleanupItem: (CleanupType) -> Unit,
-    viewModel: HomeViewModel = koinViewModel()
+    viewModel: HomeViewModel = koinViewModel(),
+    imageLoader: ImageLoader = koinInject<ImageLoader>()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -43,7 +46,8 @@ fun HomeScreenRoot(
         onAction = viewModel::onAction,
         currentDestination = currentDestination,
         onClickBottomItem = onClickBottomItem,
-        onClickCleanupItem = onClickCleanupItem
+        onClickCleanupItem = onClickCleanupItem,
+        imageLoader = imageLoader
     )
 }
 
@@ -54,6 +58,7 @@ fun HomeScreen(
     state: HomeState,
     onAction: (HomeAction) -> Unit,
     onClickCleanupItem: (CleanupType) -> Unit,
+    imageLoader: ImageLoader,
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -80,7 +85,11 @@ fun HomeScreen(
                 items(mainItems.size) { index ->
                     val item = mainItems[index]
                     when (item.displayType) {
-                        DisplayType.FULL_WIDTH_WITH_THUMBNAILS -> CleanupThumbnailItem(item, onClick = { onClickCleanupItem(item.type) })
+                        DisplayType.FULL_WIDTH_WITH_THUMBNAILS -> CleanupThumbnailItem(
+                            item,
+                            onClick = { onClickCleanupItem(item.type) },
+                            imageLoader = imageLoader
+                        )
                         DisplayType.SIMPLE_ROW -> CleanupSimpleItem(item, onClick = { onClickCleanupItem(item.type) })
                         else -> {}
                     }
@@ -148,7 +157,7 @@ fun StorageOverview(storageInfo: StorageInfo) {
 
 // For items with thumbnails like 'Similar Photos'
 @Composable
-fun CleanupThumbnailItem(item: CleanupItem, onClick: () -> Unit) {
+fun CleanupThumbnailItem(item: CleanupItem, onClick: () -> Unit, imageLoader: ImageLoader) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
@@ -169,6 +178,7 @@ fun CleanupThumbnailItem(item: CleanupItem, onClick: () -> Unit) {
                 item.mediaItems.forEach {
                     AsyncImage(
                         model = it,
+                        imageLoader = imageLoader,
                         contentDescription = null,
                         modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(8.dp)),
                         contentScale = ContentScale.Crop
