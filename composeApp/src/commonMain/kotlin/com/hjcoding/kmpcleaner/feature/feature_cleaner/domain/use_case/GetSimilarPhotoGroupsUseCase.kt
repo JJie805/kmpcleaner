@@ -45,6 +45,9 @@ class GetSimilarPhotoGroupsUseCase(
                 // 尝试从缓存获取或计算 hash1
                 val hash1 = photoHashes[photo.id] ?: run {
                     val hashBitmap = mediaRepository.getDhashBitmap(photo.id)
+                    if (hashBitmap == null) {
+                        println("[Debug] getDhashBitmap for photo ${photo.id} returned NULL")
+                    }
                     val computedHash = hashBitmap?.differenceHash()
                     // 如果计算成功，就存入缓存
                     if (computedHash != null) {
