@@ -24,6 +24,10 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>我们需要访问您的相册来查找相似照片、截图和大文件，以帮助您清理空间。</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>我们需要访问您的相册以删除您选择的照片和视频。</string>
 	<key>NSContactsUsageDescription</key>
 	<string>我们需要访问您的通讯录以查找和清理重复或无效的联系人。</string>
 	<key>NSCalendarsUsageDescription</key>

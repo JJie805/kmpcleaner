@@ -167,13 +167,6 @@ private fun ImageBitmap.differenceHash(): Long {
     val width = 9
     val height = 8
 
-    // 健壮性检查：如果传入的图片尺寸不对，返回一个错误值或抛出异常
-    if (pixelMap.width != width || pixelMap.height != height) {
-        // 在实际项目中，您可以在这里打日志或返回一个固定的错误哈希
-        println("Warning: Input bitmap for dHash is not 9x8, results may be inaccurate. width ${pixelMap.width} height ${pixelMap.height}")
-        return 0L // 或者其他您定义的错误码
-    }
-
     var hash = 0L
     var bitIndex = 0
     for (y in 0 until height) { // 遍历 8 行
