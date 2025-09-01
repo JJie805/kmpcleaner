@@ -1,8 +1,8 @@
 package com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home
 
+import GetHomePageDataUseCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hjcoding.kmpcleaner.feature.feature_cleaner.domain.use_case.GetHomePageDataUseCase
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.mappers.toStorageInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

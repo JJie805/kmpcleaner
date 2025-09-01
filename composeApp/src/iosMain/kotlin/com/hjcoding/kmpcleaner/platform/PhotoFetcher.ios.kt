@@ -7,11 +7,11 @@ import kotlinx.cinterop.usePinned
 import platform.CoreGraphics.CGSizeMake
 import platform.Foundation.NSData
 import platform.Photos.PHAsset
-import platform.Photos.PHImageContentMode
+import platform.Photos.PHImageContentModeAspectFill
 import platform.Photos.PHImageManager
 import platform.Photos.PHImageRequestOptions
-import platform.Photos.PHImageRequestOptionsDeliveryMode
-import platform.Photos.PHImageRequestOptionsResizeMode
+import platform.Photos.PHImageRequestOptionsDeliveryModeHighQualityFormat
+import platform.Photos.PHImageRequestOptionsResizeModeFast
 import platform.UIKit.UIImage
 import platform.UIKit.UIImageJPEGRepresentation
 import platform.posix.memcpy
@@ -23,9 +23,9 @@ actual suspend fun getMediaThumbnailData(media: Media): ByteArray? {
     return suspendCoroutine { continuation ->
         val imageManager = PHImageManager.defaultManager()
         val options = PHImageRequestOptions().apply {
-            resizeMode = PHImageRequestOptionsResizeMode.Fast
-            deliveryMode = PHImageRequestOptionsDeliveryMode.HighQualityFormat
-            isNetworkAccessAllowed = true
+            resizeMode = PHImageRequestOptionsResizeModeFast
+            deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat
+            networkAccessAllowed = true
         }
 
         val asset = PHAsset.fetchAssetsWithLocalIdentifiers(listOf(media.id), null).firstObject as? PHAsset
@@ -37,7 +37,7 @@ actual suspend fun getMediaThumbnailData(media: Media): ByteArray? {
         imageManager.requestImageForAsset(
             asset,
             CGSizeMake(256.0, 256.0),
-            PHImageContentMode.AspectFill,
+            PHImageContentModeAspectFill,
             options
         ) { image, _ ->
             if (image is UIImage) {

@@ -1,6 +1,5 @@
 package com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination
+import coil3.compose.AsyncImage
 import com.hjcoding.kmpcleaner.core.designsystem.components.BottomBar
 import com.hjcoding.kmpcleaner.core.designsystem.components.BottomNavItem
 import com.hjcoding.kmpcleaner.feature.feature_cleaner.presentation.model.StorageInfo
